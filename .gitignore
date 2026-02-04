@@ -67,3 +67,4 @@ buck-out/
 # testing
 /coverage
 /MusicFree-master/
+/.kiro/
