@@ -9,6 +9,7 @@ import { addDislikeInfo, hasDislike } from '@/core/dislikeList'
 import playerState from '@/store/player/state'
 import musicSdk from '@/utils/musicSdk'
 import { toOldMusicInfo } from '@/utils'
+import { downloadAction } from '@/store/download'
 
 export const handlePlay = (musicInfo: LX.Music.MusicInfoOnline) => {
   void addListMusics(LIST_IDS.DEFAULT, [musicInfo], settingState.setting['list.addMusicLocationType']).then(() => {
@@ -53,3 +54,25 @@ export const handleDislikeMusic = async(musicInfo: LX.Music.MusicInfoOnline) => 
   }
 }
 
+
+export const handleDownload = async(musicInfo: LX.Music.MusicInfoOnline, selectedList: LX.Music.MusicInfoOnline[]) => {
+  const musics = selectedList.length ? selectedList : [musicInfo]
+  
+  for (const music of musics) {
+    // 获取最高音质
+    const qualities = music.meta._qualitys || {}
+    let quality: LX.Quality = '128k'
+    
+    if (qualities.flac24bit) quality = 'flac24bit'
+    else if (qualities.flac) quality = 'flac'
+    else if (qualities['320k']) quality = '320k'
+    else if (qualities['192k']) quality = '192k'
+    
+    try {
+      await downloadAction.addDownload(music, quality)
+      toast(global.i18n.t('download_start_tip', { name: music.name }))
+    } catch (error: any) {
+      toast(global.i18n.t('download_error_tip', { name: music.name, error: error.message }))
+    }
+  }
+}
