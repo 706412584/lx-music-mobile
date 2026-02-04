@@ -57,6 +57,11 @@ target 'LxMusicMobile' do
       target.build_configurations.each do |config|
         config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '13.4'
         config.build_settings['CLANG_CXX_LANGUAGE_STANDARD'] = 'c++17'
+        
+        # 修复 iOS 16 的 C++ 异常处理问题
+        config.build_settings['CLANG_CXX_LIBRARY'] = 'libc++'
+        config.build_settings['OTHER_LDFLAGS'] ||= ['$(inherited)']
+        config.build_settings['OTHER_LDFLAGS'] << '-lc++'
       end
     end
   end
