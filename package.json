@@ -8,6 +8,7 @@
     "ios": "react-native run-ios",
     "start": "react-native start",
     "sc": "react-native start --reset-cache",
+    "sync-version-ios": "node scripts/sync-version-ios.js",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
     "rd": "react-devtools",

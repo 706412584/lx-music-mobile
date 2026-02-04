@@ -48,6 +48,9 @@ jobs:
         rm -rf Pods Podfile.lock
         pod install
     
+    - name: Sync iOS version from package.json
+      run: npm run sync-version-ios
+    
     - name: Build iOS app
       run: |
         cd ios
@@ -155,9 +158,11 @@ jobs:
     
     - name: Build summary
       run: |
+        VERSION=$(node -p "require('./package.json').version")
+        VERSION_CODE=$(node -p "require('./package.json').versionCode")
         echo "### iOS Build Completed! 🎉" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "- Build Type: ${{ github.event.inputs.build_type || 'release' }}" >> $GITHUB_STEP_SUMMARY
-        echo "- Version: 1.8.0 (72)" >> $GITHUB_STEP_SUMMARY
+        echo "- Version: $VERSION ($VERSION_CODE)" >> $GITHUB_STEP_SUMMARY
         echo "- Bundle ID: cn.xcwl.music.mobile" >> $GITHUB_STEP_SUMMARY
         echo "- Commit: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
