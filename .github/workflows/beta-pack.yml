@@ -1,9 +1,10 @@
 name: Build Beta
 
 on:
-  push:
-    branches:
-      - beta
+  workflow_dispatch:  # 改为手动触发
+  # push:
+  #   branches:
+  #     - beta
 
 jobs:
   Android:

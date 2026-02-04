@@ -1,9 +1,10 @@
 name: Build
 
 on:
-  push:
-    branches:
-      - master
+  workflow_dispatch:  # 改为手动触发
+  # push:
+  #   branches:
+  #     - master
 
 jobs:
   Android:
