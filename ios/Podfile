@@ -51,5 +51,12 @@ target 'LxMusicMobile' do
       config[:reactNativePath],
       :mac_catalyst_enabled => false
     )
+    
+    # 确保所有 pods 使用兼容的部署目标
+    installer.pods_project.targets.each do |target|
+      target.build_configurations.each do |config|
+        config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '13.4'
+      end
+    end
   end
 end
