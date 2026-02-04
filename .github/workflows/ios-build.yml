@@ -55,6 +55,20 @@ jobs:
           CONFIGURATION="Debug"
         else
           CONFIGURATION="Release"
+          
+          # Release 模式需要打包 JS bundle
+          echo "=== Building JavaScript bundle ==="
+          cd ..
+          npx react-native bundle \
+            --platform ios \
+            --dev false \
+            --entry-file index.js \
+            --bundle-output ios/main.jsbundle \
+            --assets-dest ios
+          
+          echo "JS bundle created:"
+          ls -lh ios/main.jsbundle
+          cd ios
         fi
         
         # 构建并指定输出目录
