@@ -1,4 +1,4 @@
-name: Build Beta
+name: Build Android Beta
 
 on:
   workflow_dispatch:  # 改为手动触发

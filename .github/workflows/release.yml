@@ -1,4 +1,4 @@
-name: Build
+name: Build Android Release
 
 on:
   workflow_dispatch:  # 改为手动触发
