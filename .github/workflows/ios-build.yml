@@ -67,7 +67,14 @@ jobs:
           CODE_SIGNING_ALLOWED=NO \
           CODE_SIGN_IDENTITY="" \
           CODE_SIGNING_REQUIRED=NO \
-          build
+          ONLY_ACTIVE_ARCH=NO \
+          build | tee build.log
+        
+        # 检查构建是否成功
+        if [ ${PIPESTATUS[0]} -ne 0 ]; then
+          echo "Build failed!"
+          exit 1
+        fi
         
         # 查看生成的文件
         echo "=== Build output structure ==="
