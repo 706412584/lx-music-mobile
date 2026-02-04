@@ -46,6 +46,7 @@ jobs:
         cd ios
         # 清理旧的 pods 确保使用新配置
         rm -rf Pods Podfile.lock
+        # 确保禁用 Hermes（已在 Podfile 中配置）
         pod install
     
     - name: Sync iOS version from package.json
