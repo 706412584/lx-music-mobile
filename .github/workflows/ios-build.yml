@@ -37,13 +37,15 @@ jobs:
       uses: actions/cache@v3
       with:
         path: ios/Pods
-        key: ${{ runner.os }}-pods-${{ hashFiles('ios/Podfile.lock') }}
+        key: ${{ runner.os }}-pods-${{ hashFiles('ios/Podfile.lock') }}-${{ hashFiles('ios/Podfile') }}
         restore-keys: |
           ${{ runner.os }}-pods-
     
     - name: Install CocoaPods dependencies
       run: |
         cd ios
+        # 清理旧的 pods 确保使用新配置
+        rm -rf Pods Podfile.lock
         pod install
     
     - name: Build iOS app
