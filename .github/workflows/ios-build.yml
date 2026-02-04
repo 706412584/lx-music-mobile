@@ -18,7 +18,7 @@ on:
 
 jobs:
   build-ios:
-    runs-on: macos-13  # 使用 macOS 13 而不是 latest，兼容性更好
+    runs-on: macos-latest  # 使用最新的 macOS runner
     
     steps:
     - name: Checkout code
