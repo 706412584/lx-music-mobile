@@ -101,6 +101,7 @@ jobs:
           CODE_SIGNING_REQUIRED=NO \
           ONLY_ACTIVE_ARCH=NO \
           IPHONEOS_DEPLOYMENT_TARGET=13.4 \
+          CLANG_CXX_LANGUAGE_STANDARD=c++17 \
           CLANG_CXX_LIBRARY=libc++ \
           build | tee build.log
         
