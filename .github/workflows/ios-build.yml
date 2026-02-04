@@ -1,0 +1,92 @@
+name: iOS Build
+
+# 只在手动触发或打 tag 时构建，节省免费额度
+on:
+  workflow_dispatch:  # 手动触发
+    inputs:
+      build_type:
+        description: 'Build type'
+        required: true
+        default: 'debug'
+        type: choice
+        options:
+          - debug
+          - release
+  push:
+    tags:
+      - 'v*'  # 只在版本标签时自动构建
+
+jobs:
+  build-ios:
+    runs-on: macos-latest  # 使用最新的 macOS runner
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'  # 缓存 npm 依赖
+    
+    - name: Install dependencies
+      run: npm ci  # 使用 ci 而不是 install，更快
+    
+    - name: Cache CocoaPods
+      uses: actions/cache@v3
+      with:
+        path: ios/Pods
+        key: ${{ runner.os }}-pods-${{ hashFiles('ios/Podfile.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-pods-
+    
+    - name: Install CocoaPods dependencies
+      run: |
+        cd ios
+        pod install
+    
+    - name: Build iOS app
+      run: |
+        cd ios
+        BUILD_TYPE="${{ github.event.inputs.build_type || 'release' }}"
+        
+        if [ "$BUILD_TYPE" = "debug" ]; then
+          # Debug 构建（更快，不需要签名）
+          xcodebuild -workspace LxMusicMobile.xcworkspace \
+            -scheme LxMusicMobile \
+            -configuration Debug \
+            -sdk iphoneos \
+            -arch arm64 \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            build
+        else
+          # Release 构建（需要签名）
+          xcodebuild -workspace LxMusicMobile.xcworkspace \
+            -scheme LxMusicMobile \
+            -configuration Release \
+            -sdk iphoneos \
+            -arch arm64 \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO \
+            build
+        fi
+    
+    - name: Upload build artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: ios-build-${{ github.event.inputs.build_type || 'release' }}
+        path: ios/build/
+        retention-days: 7  # 只保留 7 天，节省存储空间
+    
+    - name: Build summary
+      run: |
+        echo "### iOS Build Completed! 🎉" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "- Build Type: ${{ github.event.inputs.build_type || 'release' }}" >> $GITHUB_STEP_SUMMARY
+        echo "- Version: 1.8.0 (72)" >> $GITHUB_STEP_SUMMARY
+        echo "- Bundle ID: cn.xcwl.music.mobile" >> $GITHUB_STEP_SUMMARY
+        echo "- Commit: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
