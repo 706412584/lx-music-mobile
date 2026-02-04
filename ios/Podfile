@@ -30,6 +30,8 @@ target 'LxMusicMobile' do
 
   use_react_native!(
     :path => config[:reactNativePath],
+    # 禁用 Hermes 以修复 iOS 16.6.1 的符号缺失问题
+    :hermes_enabled => false,
     # Enables Flipper.
     #
     # Note that if you have use_frameworks! enabled, Flipper will not work and
