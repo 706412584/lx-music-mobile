@@ -55,21 +55,34 @@ jobs:
           CONFIGURATION="Debug"
         else
           CONFIGURATION="Release"
-          
-          # Release 模式需要打包 JS bundle
-          echo "=== Building JavaScript bundle ==="
-          cd ..
+        fi
+        
+        # CI 环境下需要打包 JS bundle（没有开发服务器）
+        echo "=== Building JavaScript bundle ==="
+        cd ..
+        
+        if [ "$BUILD_TYPE" = "debug" ]; then
+          # Debug 模式：包含 source map，方便调试
+          npx react-native bundle \
+            --platform ios \
+            --dev true \
+            --entry-file index.js \
+            --bundle-output ios/main.jsbundle \
+            --assets-dest ios \
+            --sourcemap-output ios/main.jsbundle.map
+        else
+          # Release 模式：优化压缩
           npx react-native bundle \
             --platform ios \
             --dev false \
             --entry-file index.js \
             --bundle-output ios/main.jsbundle \
             --assets-dest ios
-          
-          echo "JS bundle created:"
-          ls -lh ios/main.jsbundle
-          cd ios
         fi
+        
+        echo "JS bundle created:"
+        ls -lh ios/main.jsbundle
+        cd ios
         
         # 构建并指定输出目录
         xcodebuild -workspace LxMusicMobile.xcworkspace \

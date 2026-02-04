@@ -27,6 +27,12 @@
 - (NSURL *)getBundleURL
 {
 #if DEBUG
+  // 优先使用本地 bundle 文件（适用于 CI 构建）
+  NSURL *bundleURL = [[NSBundle mainBundle] URLForResource:@"main" withExtension:@"jsbundle"];
+  if (bundleURL) {
+    return bundleURL;
+  }
+  // 如果没有本地 bundle，则使用开发服务器
   return [[RCTBundleURLProvider sharedSettings] jsBundleURLForBundleRoot:@"index"];
 #else
   return [[NSBundle mainBundle] URLForResource:@"main" withExtension:@"jsbundle"];
