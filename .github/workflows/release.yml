@@ -22,7 +22,18 @@ jobs:
         run: |
           cd android
           # 使用 printf 而不是 echo，避免特殊字符问题
+          echo "Decoding keystore file..."
           printf '%s' "${{ secrets.KEYSTORE_STORE_FILE_BASE64 }}" | base64 --decode > app/${{ secrets.KEYSTORE_STORE_FILE }}
+          
+          # 验证文件是否生成
+          if [ -f "app/${{ secrets.KEYSTORE_STORE_FILE }}" ]; then
+            echo "Keystore file created successfully"
+            ls -lh app/${{ secrets.KEYSTORE_STORE_FILE }}
+          else
+            echo "ERROR: Keystore file not created!"
+            exit 1
+          fi
+          
           ./gradlew assembleRelease -PMYAPP_UPLOAD_STORE_FILE='${{ secrets.KEYSTORE_STORE_FILE }}' -PMYAPP_UPLOAD_KEY_ALIAS='${{ secrets.KEYSTORE_KEY_ALIAS }}' -PMYAPP_UPLOAD_STORE_PASSWORD='${{ secrets.KEYSTORE_PASSWORD }}' -PMYAPP_UPLOAD_KEY_PASSWORD='${{ secrets.KEYSTORE_KEY_PASSWORD }}'
           rm -f app/${{ secrets.KEYSTORE_STORE_FILE }}
 
