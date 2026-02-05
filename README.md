@@ -43,6 +43,167 @@
 
 从 v1.0.0 起，我们发布了一个独立的[数据同步服务](https://github.com/lyswhut/lx-music-sync-server#readme)。如果你有服务器，可以将其部署到服务器上作为私人多端同步服务使用，详情看该项目说明。
 
+## 编译构建
+
+### 环境准备
+
+在开始编译前，请确保已安装以下环境：
+
+- Node.js >= 18
+- npm >= 8.5.2
+- JDK 17（Android 编译需要）
+- Android SDK（Android 编译需要）
+- Xcode（iOS 编译需要，仅限 macOS）
+- CocoaPods（iOS 编译需要）
+
+详细的环境配置请参考 [React Native 官方文档](https://reactnative.dev/docs/environment-setup)。
+
+### 安装依赖
+
+```bash
+# 安装 npm 依赖
+npm install
+
+# 同步应用名称（从 package.json 的 AppName 字段同步到原生配置）
+npm run sync-app-name
+```
+
+### Android 编译
+
+#### 调试版本（Debug）
+
+```bash
+# 方式一：使用 npm 脚本（需要连接设备或启动模拟器）
+npm run dev
+
+# 方式二：仅编译 APK
+cd android
+./gradlew assembleDebug
+# Windows 系统使用：gradlew.bat assembleDebug
+
+# 生成的 APK 位置：
+# android/app/build/outputs/apk/debug/
+```
+
+#### 正式版本（Release）
+
+```bash
+# 方式一：使用 npm 脚本
+npm run pack:android
+
+# 方式二：直接使用 Gradle
+cd android
+./gradlew assembleRelease
+# Windows 系统使用：gradlew.bat assembleRelease
+
+# 生成的 APK 位置：
+# android/app/build/outputs/apk/release/
+# 包含多个架构版本：
+# - universal（通用版，包含所有架构）
+# - arm64-v8a（64位 ARM）
+# - armeabi-v7a（32位 ARM）
+# - x86（32位 x86）
+# - x86_64（64位 x86）
+```
+
+#### 安装到设备
+
+```bash
+# 安装 Debug 版本
+adb install -r android/app/build/outputs/apk/debug/app-debug.apk
+
+# 安装 Release 版本（通用版）
+adb install -r android/app/build/outputs/apk/release/lx-music-mobile-v1.8.1-universal.apk
+
+# 如果需要先卸载旧版本
+adb uninstall <package-name>
+```
+
+#### 清理构建
+
+```bash
+# 清理 Android 构建缓存
+npm run clear
+
+# 完全清理（保留签名文件）
+npm run clear:full
+```
+
+### iOS 编译
+
+**注意：iOS 编译仅支持 macOS 系统**
+
+```bash
+# 安装 CocoaPods 依赖
+cd ios
+pod install
+cd ..
+
+# 同步版本号到 iOS 配置
+npm run sync-version-ios
+
+# 使用 Xcode 编译
+# 1. 打开 ios/LxMusicMobile.xcworkspace
+# 2. 选择目标设备或模拟器
+# 3. 点击 Run 按钮或使用快捷键 Cmd+R
+
+# 或使用命令行编译
+npm run ios
+```
+
+### 开发调试
+
+#### 启动开发服务器
+
+```bash
+# 启动 Metro 开发服务器
+npm start
+
+# 清除缓存启动
+npm run sc
+```
+
+#### 热更新说明
+
+本项目支持 React Native 的热更新功能：
+
+- **JavaScript/TypeScript 代码修改**：保存后自动热更新，无需重新编译
+- **样式修改**：保存后自动热更新
+- **组件修改**：保存后自动热更新
+
+以下情况需要重新编译：
+- 修改原生代码（Java/Kotlin/Objective-C/Swift）
+- 添加或删除 npm 依赖包
+- 修改原生配置文件（build.gradle、AndroidManifest.xml、Info.plist 等）
+- 添加新的原生模块
+
+#### 调试工具
+
+```bash
+# 打开 React DevTools
+npm run rd
+
+# 打开 Android 开发者菜单（需要连接设备）
+npm run menu
+# 或在设备上摇晃手机
+```
+
+### 其他命令
+
+```bash
+# 代码检查
+npm run lint
+
+# 自动修复代码格式问题
+npm run lint:fix
+
+# 构建主题
+npm run build:theme
+
+# 发布版本
+npm run publish
+```
+
 ## 贡献代码
 
 本项目欢迎 PR，但为了 PR 能顺利合并，需要注意以下几点：
