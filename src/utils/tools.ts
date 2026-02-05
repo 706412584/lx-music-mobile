@@ -110,6 +110,12 @@ export const requestStoragePermission = async() => {
  * @param position 位置
  */
 export const toast = (message: string, duration: 'long' | 'short' = 'short', position: 'top' | 'center' | 'bottom' = 'bottom') => {
+  if (Platform.OS === 'ios') {
+    // iOS使用Alert代替Toast
+    Alert.alert('', message)
+    return
+  }
+  
   let _duration
   switch (duration) {
     case 'long':
@@ -152,7 +158,10 @@ export const assertApiSupport = (source: LX.Source): boolean => {
 // }
 
 export const exitApp = () => {
-  BackHandler.exitApp()
+  if (Platform.OS === 'android') {
+    BackHandler.exitApp()
+  }
+  // iOS不支持程序化退出应用
 }
 
 export const handleSaveFile = async(path: string, data: any) => {

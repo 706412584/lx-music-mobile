@@ -2,7 +2,7 @@
   "name": "lx-music-mobile",
   "displayName": "Orange Music",
   "AppName": "橙子音乐",
-  "version": "1.8.12",
+  "version": "1.8.13",
   "versionCode": 73,
   "private": true,
   "scripts": {
