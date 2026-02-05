@@ -101,7 +101,11 @@ const SheetListItem = memo(({ item, onPress, onDelete, showDeleteButton = true }
         {/* 歌单封面 */}
         <View style={styles.coverContainer}>
           <Image
-            source={require('@/resources/images/album-default.jpeg')}
+            source={
+              item.source && (item as any).coverUrl
+                ? { uri: (item as any).coverUrl }
+                : require('@/resources/images/album-default.jpeg')
+            }
             style={styles.cover}
           />
         </View>
@@ -134,7 +138,7 @@ const SheetListItem = memo(({ item, onPress, onDelete, showDeleteButton = true }
             onPress={handleDelete}
             hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           >
-            <Icon name="trash-outline" size={20} color={theme['c-font-label']} />
+            <Icon name="remove" size={20} color={theme['c-font-label']} />
           </TouchableOpacity>
         )}
       </View>

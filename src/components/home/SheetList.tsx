@@ -25,12 +25,8 @@ const SheetList = memo(({ lists, emptyText }: SheetListProps) => {
   const theme = useTheme()
 
   const handlePress = useCallback((item: LX.List.MyListInfo) => {
-    // 关闭侧边栏
-    global.app_event.changeLoveListVisible(false)
-    // 设置活动列表
-    requestAnimationFrame(() => {
-      setActiveList(item.id)
-    })
+    // 设置活动列表（会触发 mylistToggled 事件，HomeBody 会自动切换到歌曲列表）
+    setActiveList(item.id)
   }, [])
 
   const handleDelete = useCallback((item: LX.List.MyListInfo) => {
