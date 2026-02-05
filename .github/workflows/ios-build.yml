@@ -49,8 +49,10 @@ jobs:
         # 确保禁用 Hermes（已在 Podfile 中配置）
         pod install
     
-    - name: Sync iOS version from package.json
-      run: npm run sync-version-ios
+    - name: Sync iOS version and app name from package.json
+      run: |
+        npm run sync-version-ios
+        npm run sync-app-name
     
     - name: Build iOS app
       run: |
