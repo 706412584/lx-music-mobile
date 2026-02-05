@@ -70,6 +70,7 @@
   "list_edit_action_tip_move_failed": "移动失败",
   "list_edit_action_tip_move_success": "移动成功",
   "list_edit_action_tip_remove_success": "移除成功",
+  "list_edit_action_tip_remove_failed": "移除失败",
   "list_end": "到底啦~",
   "list_error": "加载失败😥，点击尝试重新加载",
   "list_export": "导出",

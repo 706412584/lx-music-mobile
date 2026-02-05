@@ -70,6 +70,7 @@
   "list_edit_action_tip_move_failed": "Failed to move",
   "list_edit_action_tip_move_success": "Successfully moved",
   "list_edit_action_tip_remove_success": "Successfully removed",
+  "list_edit_action_tip_remove_failed": "Failed to remove",
   "list_end": "In the end~",
   "list_error": "Loading failed😥, click to try to reload",
   "list_export": "Export",

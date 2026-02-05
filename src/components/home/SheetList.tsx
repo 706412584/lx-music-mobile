@@ -4,7 +4,7 @@ import SheetListItem from './SheetListItem'
 import Text from '@/components/common/Text'
 import { useTheme } from '@/store/theme/hook'
 import { scaleSizeH } from '@/utils/pixelRatio'
-import { setActiveList, removeList } from '@/core/list'
+import { setActiveList, removeUserList } from '@/core/list'
 import { confirmDialog, toast } from '@/utils/tools'
 
 interface SheetListProps {
@@ -38,7 +38,7 @@ const SheetList = memo(({ lists, emptyText }: SheetListProps) => {
       if (!confirmed) return
       try {
         console.log('开始删除歌单:', item.id)
-        await removeList(item.id)
+        await removeUserList([item.id])
         console.log('删除成功')
         // 删除成功提示
         const successMsg = global.i18n.t('list_edit_action_tip_remove_success')
