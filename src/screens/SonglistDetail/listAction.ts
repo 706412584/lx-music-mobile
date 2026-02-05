@@ -65,7 +65,12 @@ export const handleCollect = async(id: string, source: Source, name: string, img
     img,
   })
   
-  console.log('歌单创建完成，触发更新事件')
+  console.log('歌单创建完成，等待数据保存...')
+  
+  // 等待一小段时间确保数据已保存
+  await new Promise(resolve => setTimeout(resolve, 100))
+  
+  console.log('触发更新事件')
   
   // 清除歌曲数量缓存，确保显示正确的数量
   global.state_event.emit('mylistUpdated', listState.allList)

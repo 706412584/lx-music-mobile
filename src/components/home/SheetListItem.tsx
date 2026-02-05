@@ -134,18 +134,12 @@ const SheetListItem = memo(({ item, onPress, onDelete, showDeleteButton = true }
             }
             style={styles.cover}
             onError={(e) => {
-              console.log('图片加载失败:', item.img, e.nativeEvent.error)
+              console.log(`图片加载失败 [${item.name}]:`, item.img, e.nativeEvent?.error)
             }}
             onLoad={() => {
-              console.log('图片加载成功:', item.img)
+              console.log(`图片加载成功 [${item.name}]:`, item.img)
             }}
           />
-          {/* 调试信息 */}
-          {__DEV__ && item.img && (
-            <Text style={{ position: 'absolute', bottom: 0, fontSize: 8, backgroundColor: 'rgba(0,0,0,0.5)', color: 'white' }}>
-              {item.img ? 'Has URL' : 'No URL'}
-            </Text>
-          )}
         </View>
 
         {/* 歌单信息 */}
