@@ -77,7 +77,6 @@ export default forwardRef<OnlineListType, OnlineListProps>(({
   const handleBatchDownload = () => {
     const selectedList = listRef.current?.getSelectedList() || []
     if (selectedList.length === 0) {
-      global.lx.showToast('请先选择要下载的歌曲')
       return
     }
     
