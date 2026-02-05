@@ -30,17 +30,28 @@ const SheetList = memo(({ lists, emptyText }: SheetListProps) => {
   }, [])
 
   const handleDelete = useCallback((item: LX.List.MyListInfo) => {
+    console.log('准备删除歌单:', item.name, item.id)
     void confirmDialog({
       message: global.i18n.t('list_remove_tip', { name: item.name }),
     }).then(async(confirmed) => {
+      console.log('用户确认删除:', confirmed)
       if (!confirmed) return
       try {
+        console.log('开始删除歌单:', item.id)
         await removeList(item.id)
+        console.log('删除成功')
         // 删除成功提示
-        toast(global.i18n.t('list_edit_action_tip_remove_success'))
+        const successMsg = global.i18n.t('list_edit_action_tip_remove_success')
+        console.log('成功提示文本:', successMsg)
+        toast(successMsg)
       } catch (error) {
-        toast(global.i18n.t('list_edit_action_tip_remove_failed'))
+        console.log('删除失败:', error)
+        const failMsg = global.i18n.t('list_edit_action_tip_remove_failed')
+        console.log('失败提示文本:', failMsg)
+        toast(failMsg)
       }
+    }).catch((error) => {
+      console.log('confirmDialog 错误:', error)
     })
   }, [])
 
