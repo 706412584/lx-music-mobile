@@ -47,13 +47,18 @@ export const handleCollect = async(id: string, source: Source, name: string, img
   }
 
   const list = await getListDetailAll(source, id)
+  const newListId = `${source}_${toMD5(listId)}`
   await createList({
     name,
-    id: `${source}_${toMD5(listId)}`,
+    id: newListId,
     list,
     source,
     sourceListId: id,
     img,
   })
+  
+  // 清除歌曲数量缓存，确保显示正确的数量
+  global.state_event.emit('mylistUpdated', listState.allList)
+  
   toast(global.i18n.t('collect_success'))
 }

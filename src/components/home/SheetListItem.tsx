@@ -70,6 +70,29 @@ const SheetListItem = memo(({ item, onPress, onDelete, showDeleteButton = true }
     }
   }, [item.id])
 
+  // 监听列表更新事件，清除缓存并重新获取
+  useEffect(() => {
+    const handleListUpdated = () => {
+      // 清除当前歌单的缓存
+      songCountCache.delete(item.id)
+      // 重新获取歌曲数量
+      void getListMusics(item.id).then((musics) => {
+        const count = musics.length
+        setSongCount(count)
+        songCountCache.set(item.id, count)
+      }).catch(() => {
+        setSongCount(0)
+        songCountCache.set(item.id, 0)
+      })
+    }
+
+    global.state_event.on('mylistUpdated', handleListUpdated)
+
+    return () => {
+      global.state_event.off('mylistUpdated', handleListUpdated)
+    }
+  }, [item.id])
+
   const handlePress = () => {
     onPress(item)
   }
