@@ -1,15 +1,18 @@
-import { memo, useCallback } from 'react'
+import { memo, useCallback, useState } from 'react'
 import { View, StyleSheet, FlatList } from 'react-native'
 import SheetListItem from './SheetListItem'
 import Text from '@/components/common/Text'
+import Button from '@/components/common/Button'
 import { useTheme } from '@/store/theme/hook'
-import { scaleSizeH } from '@/utils/pixelRatio'
-import { setActiveList, removeUserList } from '@/core/list'
+import { scaleSizeH, scaleSizeW } from '@/utils/pixelRatio'
+import { removeUserList } from '@/core/list'
 import { confirmDialog, toast } from '@/utils/tools'
 
 interface SheetListProps {
   lists: LX.List.MyListInfo[]
   emptyText?: string
+  isManageMode?: boolean
+  onExitManageMode?: () => void
 }
 
 /**
@@ -21,53 +24,72 @@ interface SheetListProps {
  * - 优化 FlatList 配置参数
  * - 使用 memo 避免不必要的重渲染
  */
-const SheetList = memo(({ lists, emptyText }: SheetListProps) => {
+const SheetList = memo(({ lists, emptyText, isManageMode = false, onExitManageMode }: SheetListProps) => {
   const theme = useTheme()
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
 
   const handlePress = useCallback((item: LX.List.MyListInfo) => {
-    // 设置活动列表（会触发 mylistToggled 事件，HomeBody 会自动切换到歌曲列表）
-    setActiveList(item.id)
-  }, [])
+    if (isManageMode) {
+      // 管理模式下切换选中状态
+      setSelectedIds(prev => {
+        const newSet = new Set(prev)
+        if (newSet.has(item.id)) {
+          newSet.delete(item.id)
+        } else {
+          newSet.add(item.id)
+        }
+        return newSet
+      })
+    } else {
+      // 正常模式下设置活动列表
+      const { setActiveList } = require('@/core/list')
+      setActiveList(item.id)
+    }
+  }, [isManageMode])
 
-  const handleDelete = useCallback((item: LX.List.MyListInfo) => {
-    console.log('准备删除歌单:', item.name, item.id)
-    void confirmDialog({
-      message: global.i18n.t('list_remove_tip', { name: item.name }),
-    }).then(async(confirmed) => {
-      console.log('用户确认删除:', confirmed)
-      if (!confirmed) return
-      try {
-        console.log('开始删除歌单:', item.id)
-        await removeUserList([item.id])
-        console.log('删除成功')
-        // 删除成功提示
-        const successMsg = global.i18n.t('list_edit_action_tip_remove_success')
-        console.log('成功提示文本:', successMsg)
-        toast(successMsg)
-      } catch (error) {
-        console.log('删除失败:', error)
-        const failMsg = global.i18n.t('list_edit_action_tip_remove_failed')
-        console.log('失败提示文本:', failMsg)
-        toast(failMsg)
-      }
-    }).catch((error) => {
-      console.log('confirmDialog 错误:', error)
+  const handleBatchDelete = useCallback(async() => {
+    if (selectedIds.size === 0) {
+      toast('请选择要删除的歌单')
+      return
+    }
+
+    const confirmed = await confirmDialog({
+      message: `确定要删除选中的 ${selectedIds.size} 个歌单吗？`,
     })
-  }, [])
+
+    if (!confirmed) return
+
+    try {
+      await removeUserList(Array.from(selectedIds))
+      toast('删除成功')
+      setSelectedIds(new Set())
+      onExitManageMode?.()
+    } catch (error) {
+      console.log('批量删除失败:', error)
+      toast('删除失败')
+    }
+  }, [selectedIds, onExitManageMode])
+
+  const handleSelectAll = useCallback(() => {
+    if (selectedIds.size === lists.length) {
+      // 全部已选中，则取消全选
+      setSelectedIds(new Set())
+    } else {
+      // 全选
+      setSelectedIds(new Set(lists.map(item => item.id)))
+    }
+  }, [lists, selectedIds.size])
 
   const renderItem = useCallback(({ item }: { item: LX.List.MyListInfo }) => {
-    // 默认列表和收藏列表不显示删除按钮
-    const showDeleteButton = item.id !== 'default' && item.id !== 'love'
-
     return (
       <SheetListItem
         item={item}
         onPress={handlePress}
-        onDelete={handleDelete}
-        showDeleteButton={showDeleteButton}
+        isManageMode={isManageMode}
+        isSelected={selectedIds.has(item.id)}
       />
     )
-  }, [handlePress, handleDelete])
+  }, [handlePress, isManageMode, selectedIds])
 
   const renderEmpty = useCallback(() => (
     <View style={styles.emptyContainer}>
@@ -88,24 +110,45 @@ const SheetList = memo(({ lists, emptyText }: SheetListProps) => {
   }), [])
 
   return (
-    <FlatList
-      data={lists}
-      renderItem={renderItem}
-      keyExtractor={keyExtractor}
-      ListEmptyComponent={renderEmpty}
-      showsVerticalScrollIndicator={false}
-      contentContainerStyle={styles.contentContainer}
-      removeClippedSubviews={true}
-      maxToRenderPerBatch={8}
-      windowSize={5}
-      initialNumToRender={8}
-      updateCellsBatchingPeriod={50}
-      getItemLayout={getItemLayout}
-    />
+    <View style={styles.container}>
+      <FlatList
+        data={lists}
+        renderItem={renderItem}
+        keyExtractor={keyExtractor}
+        ListEmptyComponent={renderEmpty}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.contentContainer}
+        removeClippedSubviews={true}
+        maxToRenderPerBatch={8}
+        windowSize={5}
+        initialNumToRender={8}
+        updateCellsBatchingPeriod={50}
+        getItemLayout={getItemLayout}
+      />
+      
+      {/* 管理模式底部操作栏 */}
+      {isManageMode && lists.length > 0 && (
+        <View style={[styles.bottomBar, { backgroundColor: theme['c-content-background'] }]}>
+          <Button onPress={handleSelectAll} style={styles.bottomButton}>
+            <Text style={{ color: theme['c-button-font'] }}>
+              {selectedIds.size === lists.length ? '取消全选' : '全选'}
+            </Text>
+          </Button>
+          <Button onPress={handleBatchDelete} style={styles.bottomButton}>
+            <Text style={{ color: theme['c-button-font'] }}>
+              删除 {selectedIds.size > 0 ? `(${selectedIds.size})` : ''}
+            </Text>
+          </Button>
+        </View>
+      )}
+    </View>
   )
 })
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
   contentContainer: {
     paddingVertical: scaleSizeH(8),
   },
@@ -113,6 +156,18 @@ const styles = StyleSheet.create({
     paddingVertical: scaleSizeH(40),
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  bottomBar: {
+    flexDirection: 'row',
+    paddingVertical: scaleSizeH(12),
+    paddingHorizontal: scaleSizeW(12),
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(0, 0, 0, 0.1)',
+  },
+  bottomButton: {
+    flex: 1,
+    marginHorizontal: scaleSizeW(6),
+    paddingVertical: scaleSizeH(10),
   },
 })
 

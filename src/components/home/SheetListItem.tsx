@@ -1,4 +1,4 @@
-import { memo, useRef, useState, useEffect, useMemo } from 'react'
+import { memo, useState, useEffect, useMemo } from 'react'
 import { View, TouchableOpacity, StyleSheet } from 'react-native'
 import { Icon } from '@/components/common/Icon'
 import Text from '@/components/common/Text'
@@ -11,8 +11,8 @@ import { registerSongCountCacheClearer } from '@/utils/performanceOptimization'
 interface SheetListItemProps {
   item: LX.List.MyListInfo
   onPress: (item: LX.List.MyListInfo) => void
-  onDelete?: (item: LX.List.MyListInfo) => void
-  showDeleteButton?: boolean
+  isManageMode?: boolean
+  isSelected?: boolean
 }
 
 // 缓存歌曲数量，避免重复获取
@@ -30,16 +30,15 @@ export const clearSongCountCache = () => {
 
 /**
  * 歌单列表项组件
- * 显示歌单封面、名称、歌曲数量和删除按钮
+ * 显示歌单封面、名称、歌曲数量和管理模式下的复选框
  *
  * 性能优化：
  * - 使用缓存避免重复获取歌曲数量
  * - 使用 memo 避免不必要的重渲染
  * - 使用 useMemo 缓存计算结果
  */
-const SheetListItem = memo(({ item, onPress, onDelete, showDeleteButton = true }: SheetListItemProps) => {
+const SheetListItem = memo(({ item, onPress, isManageMode = false, isSelected = false }: SheetListItemProps) => {
   const theme = useTheme()
-  const deleteButtonRef = useRef<TouchableOpacity>(null)
   const [songCount, setSongCount] = useState(() => songCountCache.get(item.id) ?? 0)
 
   useEffect(() => {
@@ -100,17 +99,12 @@ const SheetListItem = memo(({ item, onPress, onDelete, showDeleteButton = true }
     onPress(item)
   }
 
-  const handleDelete = () => {
-    if (onDelete) {
-      onDelete(item)
-    }
-  }
-
   // 使用 useMemo 缓存样式对象，避免每次渲染都创建新对象
   const containerStyle = useMemo(() => [
     styles.container,
     { backgroundColor: theme['c-content-background'] },
-  ], [theme])
+    isManageMode && isSelected && { borderColor: theme['c-primary'], borderWidth: 2 },
+  ], [theme, isManageMode, isSelected])
 
   const coverMaskStyle = useMemo(() => [
     styles.coverMask,
@@ -124,6 +118,17 @@ const SheetListItem = memo(({ item, onPress, onDelete, showDeleteButton = true }
       activeOpacity={0.7}
     >
       <View style={styles.content}>
+        {/* 管理模式下的复选框 */}
+        {isManageMode && (
+          <View style={styles.checkboxContainer}>
+            <Icon
+              name={isSelected ? 'checkbox-marked' : 'checkbox-blank-outline'}
+              size={24}
+              color={isSelected ? theme['c-primary'] : theme['c-font-label']}
+            />
+          </View>
+        )}
+
         {/* 歌单封面 */}
         <View style={styles.coverContainer}>
           <Image
@@ -154,18 +159,6 @@ const SheetListItem = memo(({ item, onPress, onDelete, showDeleteButton = true }
             {songCount} 首歌曲
           </Text>
         </View>
-
-        {/* 删除按钮 */}
-        {showDeleteButton && (
-          <TouchableOpacity
-            ref={deleteButtonRef}
-            style={styles.deleteButton}
-            onPress={handleDelete}
-            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-          >
-            <Icon name="remove" size={20} color={theme['c-font-label']} />
-          </TouchableOpacity>
-        )}
       </View>
     </TouchableOpacity>
   )
@@ -182,6 +175,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     padding: scaleSizeW(12),
+  },
+  checkboxContainer: {
+    marginRight: scaleSizeW(12),
   },
   coverContainer: {
     width: scaleSizeW(56),
@@ -215,10 +211,6 @@ const styles = StyleSheet.create({
   },
   description: {
     fontWeight: '400',
-  },
-  deleteButton: {
-    padding: scaleSizeW(8),
-    marginLeft: scaleSizeW(8),
   },
 })
 
