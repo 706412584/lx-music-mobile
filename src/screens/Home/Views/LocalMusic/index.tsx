@@ -17,7 +17,7 @@ import ChoosePath from '@/components/common/ChoosePath'
 /**
  * 本地音乐页面
  */
-const LocalMusic = memo(() => {
+const LocalMusic = memo(({ onBack }: { onBack?: () => void }) => {
   const theme = useTheme()
   const t = useI18n()
   const [musicList, setMusicList] = useState<LX.Music.MusicInfoLocal[]>([])
@@ -162,6 +162,15 @@ const LocalMusic = memo(() => {
       {/* 头部 - 只在有音乐时显示 */}
       {musicList.length > 0 && (
         <View style={[styles.header, { backgroundColor: theme['c-primary-alpha-600'] }]}>
+          {onBack && (
+            <TouchableOpacity
+              style={styles.backBtn}
+              onPress={onBack}
+              activeOpacity={0.7}
+            >
+              <Icon name="chevron-left" size={24} color={theme['c-font']} />
+            </TouchableOpacity>
+          )}
           <View style={styles.headerButtons}>
             <TouchableOpacity
               style={[styles.headerBtn, { backgroundColor: theme['c-button-font'] }]}
@@ -210,6 +219,9 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     paddingHorizontal: scaleSizeW(16),
     paddingVertical: scaleSizeH(12),
+  },
+  backBtn: {
+    marginRight: 'auto',
   },
   headerButtons: {
     flexDirection: 'row',

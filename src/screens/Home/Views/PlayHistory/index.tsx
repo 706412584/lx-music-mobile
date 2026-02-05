@@ -15,7 +15,7 @@ import { toast } from '@/utils/tools'
 /**
  * 播放历史页面
  */
-const PlayHistory = memo(() => {
+const PlayHistory = memo(({ onBack }: { onBack?: () => void }) => {
   const theme = useTheme()
   const t = useI18n()
   const [historyList, setHistoryList] = useState<LX.Player.PlayMusicInfo[]>([...playerState.playedList])
@@ -102,6 +102,15 @@ const PlayHistory = memo(() => {
       {/* 头部 - 只在有历史记录时显示 */}
       {historyList.length > 0 && (
         <View style={[styles.header, { backgroundColor: theme['c-primary-alpha-600'] }]}>
+          {onBack && (
+            <TouchableOpacity
+              style={styles.backBtn}
+              onPress={onBack}
+              activeOpacity={0.7}
+            >
+              <Icon name="chevron-left" size={24} color={theme['c-font']} />
+            </TouchableOpacity>
+          )}
           <TouchableOpacity
             style={[styles.clearBtn, { backgroundColor: theme['c-button-font'] }]}
             onPress={handleClearAll}
@@ -136,6 +145,9 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
     paddingHorizontal: scaleSizeW(16),
     paddingVertical: scaleSizeH(12),
+  },
+  backBtn: {
+    marginRight: 'auto',
   },
   clearBtn: {
     paddingHorizontal: scaleSizeW(16),

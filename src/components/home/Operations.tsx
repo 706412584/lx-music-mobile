@@ -7,6 +7,7 @@ import { setNavActiveId } from '@/core/common'
 
 interface OperationsProps {
   isHorizontal?: boolean
+  onNavigate?: (page: string) => void
 }
 
 /**
@@ -14,7 +15,7 @@ interface OperationsProps {
  * 参考 MusicFree 的设计，提供四个快捷操作按钮
  * 支持横竖屏自适应布局
  */
-const Operations = memo(({ isHorizontal = false }: OperationsProps) => {
+const Operations = memo(({ isHorizontal = false, onNavigate }: OperationsProps) => {
   const t = useI18n()
 
   const actionButtons = [
@@ -36,14 +37,14 @@ const Operations = memo(({ isHorizontal = false }: OperationsProps) => {
       iconName: 'music_time',
       title: t('play_history'),
       action: () => {
-        setNavActiveId('nav_play_history')
+        onNavigate?.('play_history')
       },
     },
     {
       iconName: 'add_folder',
       title: t('local_music'),
       action: () => {
-        setNavActiveId('nav_local_music')
+        onNavigate?.('local_music')
       },
     },
   ] as const
