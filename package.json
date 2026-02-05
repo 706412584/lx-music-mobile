@@ -1,5 +1,6 @@
 {
   "name": "lx-music-mobile",
+  "displayName": "LX Music",
   "version": "1.8.1",
   "versionCode": 73,
   "private": true,
