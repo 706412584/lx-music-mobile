@@ -125,27 +125,12 @@ export default forwardRef<MusicListType, MusicListProps>(({ componentId, isManag
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const header = useMemo(() => <Header ref={headerRef} componentId={componentId} />, [])
 
-  const handleBatchDownload = () => {
-    const listDetailInfo = songlistState.listDetailInfo
-    const selectedList = listRef.current?.getSelectedList?.() || []
-    
-    if (selectedList.length === 0) {
-      return
-    }
-
-    // 调用下载功能
-    void import('@/components/OnlineList/listAction').then(({ handleDownload }) => {
-      void handleDownload(selectedList[0], selectedList)
-    })
-  }
-
   return <OnlineList
     ref={listRef}
     onPlayList={handlePlayList}
     onRefresh={handleRefresh}
     onLoadMore={handleLoadMore}
     ListHeaderComponent={header}
-    onBatchDownload={handleBatchDownload}
     // progressViewOffset={}
    />
 })

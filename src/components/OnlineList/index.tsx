@@ -17,7 +17,6 @@ export interface OnlineListProps {
   ListHeaderComponent?: ListProps['ListHeaderComponent']
   checkHomePagerIdle?: boolean
   rowType?: RowInfoType
-  onBatchDownload?: () => void
 }
 export interface OnlineListType {
   setList: (list: LX.Music.MusicInfoOnline[], isAppend?: boolean, showSource?: boolean) => void
@@ -34,7 +33,6 @@ export default forwardRef<OnlineListType, OnlineListProps>(({
   ListHeaderComponent,
   checkHomePagerIdle = false,
   rowType,
-  onBatchDownload,
 }, ref) => {
   const listRef = useRef<ListType>(null)
   const multipleModeBarRef = useRef<MultipleModeBarType>(null)
@@ -76,17 +74,17 @@ export default forwardRef<OnlineListType, OnlineListProps>(({
 
   const handleBatchDownload = () => {
     const selectedList = listRef.current?.getSelectedList() || []
+    console.log('[OnlineList] 批量下载 - 选中歌曲数:', selectedList.length)
+    
     if (selectedList.length === 0) {
+      console.log('[OnlineList] 没有选中歌曲，返回')
       return
     }
     
-    // 调用批量下载
-    if (onBatchDownload) {
-      onBatchDownload()
-    } else {
-      // 默认下载逻辑
-      void handleDownload(selectedList[0], selectedList)
-    }
+    console.log('[OnlineList] 开始下载')
+    
+    // 直接调用下载逻辑
+    void handleDownload(selectedList[0], selectedList)
     
     // 下载后退出选择模式
     hancelExitSelect()
