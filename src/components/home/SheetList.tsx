@@ -39,7 +39,7 @@ const SheetList = memo(({ lists, emptyText }: SheetListProps) => {
         // 删除成功提示
         toast(global.i18n.t('list_edit_action_tip_remove_success'))
       } catch (error) {
-        toast(global.i18n.t('list_edit_action_tip_add_failed'))
+        toast(global.i18n.t('list_edit_action_tip_remove_failed'))
       }
     })
   }, [])
