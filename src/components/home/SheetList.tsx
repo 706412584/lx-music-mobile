@@ -5,7 +5,7 @@ import Text from '@/components/common/Text'
 import { useTheme } from '@/store/theme/hook'
 import { scaleSizeH } from '@/utils/pixelRatio'
 import { setActiveList, removeList } from '@/core/list'
-import { confirmDialog } from '@/utils/tools'
+import { confirmDialog, toast } from '@/utils/tools'
 
 interface SheetListProps {
   lists: LX.List.MyListInfo[]
@@ -37,9 +37,9 @@ const SheetList = memo(({ lists, emptyText }: SheetListProps) => {
       try {
         await removeList(item.id)
         // 删除成功提示
-        global.app_event.toast(global.i18n.t('list_edit_action_tip_remove_success'))
+        toast(global.i18n.t('list_edit_action_tip_remove_success'))
       } catch (error) {
-        global.app_event.toast(global.i18n.t('list_edit_action_tip_add_failed'))
+        toast(global.i18n.t('list_edit_action_tip_add_failed'))
       }
     })
   }, [])
