@@ -9,6 +9,8 @@ import {
   resumeAllDownloads,
   retryDownload,
 } from '@/core/download'
+import { requestStoragePermission } from '@/core/common'
+import { toast } from '@/utils/tools'
 import type { DownloadStatusType, DownloadFailReasonType } from '@/core/download/stateMachine'
 
 // 批量状态更新队列
@@ -33,6 +35,13 @@ const scheduleBatchUpdate = () => {
 
 export default {
   async addDownload(musicInfo: LX.Music.MusicInfoOnline, quality: LX.Quality) {
+    // 检查存储权限
+    const hasPermission = await requestStoragePermission()
+    if (!hasPermission) {
+      toast(global.i18n.t('download_permission_denied'))
+      return null
+    }
+
     // 先检查是否已存在（去重）- 包括所有状态
     const existingItem = state.list.find(i => 
       i.metadata.musicInfo.id === musicInfo.id && 
@@ -69,6 +78,13 @@ export default {
   },
 
   async addDownloadBatch(musicList: LX.Music.MusicInfoOnline[], quality: LX.Quality) {
+    // 检查存储权限
+    const hasPermission = await requestStoragePermission()
+    if (!hasPermission) {
+      toast(global.i18n.t('download_permission_denied'))
+      return []
+    }
+
     const newItems: LX.Download.ListItem[] = []
     let skippedCount = 0
 

@@ -50,6 +50,7 @@
   "download_error_tip": "下载「{name}」失败：{error}",
   "download_completed": "该歌曲已下载",
   "download_downloading": "该歌曲正在下载中",
+  "download_permission_denied": "需要存储权限才能下载歌曲，请在设置中授予权限",
   "duplicate_list_tip": "你之前已收藏过列表「{name}」，是否需要更新里面的歌曲？",
   "edit_metadata": "编辑标签",
   "exit_app_tip": "确定要退出应用吗？",

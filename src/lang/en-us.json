@@ -50,6 +50,7 @@
   "download_error_tip": "Failed to download '{name}': {error}",
   "download_completed": "This song has been downloaded",
   "download_downloading": "This song is downloading",
+  "download_permission_denied": "Storage permission is required to download songs. Please grant permission in settings",
   "duplicate_list_tip": "You have collected this list \"{name}\", do you need to update the songs in it?",
   "edit_metadata": "Edit Metadata",
   "exit_app_tip": "Are you sure you want to exit the app?",
