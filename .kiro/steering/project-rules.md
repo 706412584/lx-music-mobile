@@ -44,3 +44,51 @@ inclusion: always
 - 提交信息要清晰明确
 - 一次提交只做一件事
 - 重要修改要在提交信息中详细说明
+
+## React Native 开发流程
+
+### 开发服务器热更新
+
+本项目是 React Native 应用，支持热更新（Hot Reload）功能：
+
+1. **首次安装**：需要编译并安装 APK 到设备
+   ```bash
+   cd android
+   .\gradlew.bat assembleDebug
+   adb install -r -d app\build\outputs\apk\debug\lx-music-mobile-v1.8.1-universal.apk
+   ```
+
+2. **启动开发服务器**：
+   ```bash
+   npm start
+   # 或
+   npx react-native start
+   ```
+
+3. **代码修改后**：
+   - ✅ **JavaScript/TypeScript 代码修改**：保存后自动热更新，无需重新打包
+   - ✅ **样式修改**：保存后自动热更新
+   - ✅ **组件修改**：保存后自动热更新
+   - ❌ **原生代码修改**（Java/Kotlin/Objective-C）：需要重新编译安装
+   - ❌ **依赖包变更**（package.json）：需要重新编译安装
+   - ❌ **原生配置修改**（AndroidManifest.xml 等）：需要重新编译安装
+
+4. **开发服务器运行时**：
+   - 在设备上摇晃手机或按菜单键可打开开发者菜单
+   - 选择"Reload"可手动刷新应用
+   - 选择"Enable Hot Reloading"启用热更新
+   - 选择"Enable Fast Refresh"启用快速刷新（推荐）
+
+### 何时需要重新打包
+
+只有以下情况需要重新编译和安装 APK：
+- 修改了原生代码（android/ 目录下的 Java/Kotlin 文件）
+- 添加或删除了 npm 依赖包
+- 修改了原生配置文件（build.gradle、AndroidManifest.xml 等）
+- 添加了新的原生模块或链接
+
+### 开发建议
+
+- 保持开发服务器运行，享受热更新带来的快速开发体验
+- 大部分 UI 和逻辑修改都可以通过热更新立即看到效果
+- 只在必要时才重新打包，节省开发时间

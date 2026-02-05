@@ -53,6 +53,7 @@
     "iconv-lite": "^0.7.0",
     "lrc-file-parser": "^2.4.1",
     "message2call": "^0.1.3",
+    "nanoid": "^5.1.6",
     "pako": "^2.1.0",
     "react": "18.2.0",
     "react-native": "0.73.11",

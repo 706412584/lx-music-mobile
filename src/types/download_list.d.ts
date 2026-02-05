@@ -6,11 +6,18 @@
 
 declare namespace LX {
   namespace Download {
+    // Download states following state machine pattern
+    type DownloadStatus = 'pending' | 'preparing' | 'downloading' | 'paused' | 'completed' | 'error'
+
+    // Legacy status type for backward compatibility
     type DownloadTaskStatus = 'run'
     | 'waiting'
     | 'pause'
     | 'error'
     | 'completed'
+
+    // Error reasons
+    type DownloadFailReason = 'no-write-permission' | 'fail-to-fetch-source' | 'network-error' | 'unknown'
 
     type FileExt = 'mp3' | 'flac' | 'wav' | 'ape'
 
@@ -19,6 +26,9 @@ declare namespace LX {
       speed: string
       downloaded: number
       total: number
+      downloadedFormatted?: string
+      totalFormatted?: string
+      remainingTime?: string
     }
 
     interface DownloadTaskActionBase <A> {
@@ -48,6 +58,9 @@ declare namespace LX {
       total: number
       progress: number
       speed: string
+      downloadedFormatted?: string
+      totalFormatted?: string
+      remainingTime?: string
       metadata: {
         musicInfo: LX.Music.MusicInfoOnline
         url: string | null
@@ -56,6 +69,14 @@ declare namespace LX {
         fileName: string
         filePath: string
       }
+      // State machine fields
+      downloadStatus?: DownloadStatus
+      errorReason?: DownloadFailReason
+      jobId?: number
+      // Retry fields
+      retryCount?: number
+      lastRetryTime?: number
+      lastError?: string
     }
 
     interface saveDownloadMusicInfo {

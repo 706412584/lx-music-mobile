@@ -7,6 +7,7 @@ import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
 import { ScrollView, View } from 'react-native'
 import HistorySearch, { type HistorySearchType } from './HistorySearch'
 import HotSearch, { type HotSearchType } from './HotSearch'
+import { Operations } from '@/components/home'
 
 interface BlankViewProps {
   onSearch: (keyword: string) => void
@@ -50,14 +51,18 @@ export default forwardRef<BlankViewType, BlankViewProps>(({ onSearch }, ref) => 
         ? (
             <ScrollView>
               <View style={styles.content}>
+                <Operations />
                 { isShowHotSearch ? <HotSearch ref={hotSearchRef} onSearch={onSearch} /> : null }
                 { isShowHistorySearch ? <HistorySearch ref={historySearchRef} onSearch={onSearch} /> : null }
               </View>
             </ScrollView>
           )
         : (
-            <View style={styles.welcome}>
-              <Text size={22} color={theme['c-font-label']}>{t('search__welcome')}</Text>
+            <View style={styles.container}>
+              <Operations />
+              <View style={styles.welcome}>
+                <Text size={22} color={theme['c-font-label']}>{t('search__welcome')}</Text>
+              </View>
             </View>
           )
       : null
@@ -67,6 +72,9 @@ export default forwardRef<BlankViewType, BlankViewProps>(({ onSearch }, ref) => 
 
 
 const styles = createStyle({
+  container: {
+    flex: 1,
+  },
   content: {
     // paddingTop: 15,
     paddingBottom: 15,

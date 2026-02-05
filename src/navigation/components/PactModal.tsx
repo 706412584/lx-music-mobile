@@ -69,7 +69,7 @@ const Footer = ({ componentId }: { componentId: string }) => {
   const theme = useTheme()
   const isAgreePact = useSettingValue('common.isAgreePact')
   // const checkUpdate = useDispatch('common', 'checkUpdate')
-  const [time, setTime] = useState(0)  // 修改为0，取消等待时间
+  const [time, setTime] = useState(0) // 设置为0，无需等待
 
   const handleRejct = () => {
     exitApp()
@@ -104,7 +104,7 @@ const Footer = ({ componentId }: { componentId: string }) => {
   }, [isAgreePact, time])
 
   useEffect(() => {
-    if (isAgreePact) return
+    if (isAgreePact || time === 0) return // 如果已同意或时间为0，不启动倒计时
     const timeoutTools = {
       timeout: null as NodeJS.Timeout | null,
       start() {

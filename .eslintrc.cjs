@@ -80,5 +80,6 @@ module.exports = {
     '*.min.js',
     'test.js',
     '*Test.ts',
+    'MusicFree-master',
   ],
 }
