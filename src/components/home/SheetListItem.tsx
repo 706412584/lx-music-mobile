@@ -127,17 +127,10 @@ const SheetListItem = memo(({ item, onPress, onDelete, showDeleteButton = true }
         {/* 歌单封面 */}
         <View style={styles.coverContainer}>
           <Image
-            source={
-              item.img
-                ? { uri: item.img }
-                : require('@/resources/images/album-default.jpeg')
-            }
+            url={item.img || undefined}
             style={styles.cover}
-            onError={(e) => {
-              console.log(`图片加载失败 [${item.name}]:`, item.img, e.nativeEvent?.error)
-            }}
-            onLoad={() => {
-              console.log(`图片加载成功 [${item.name}]:`, item.img)
+            onError={(url) => {
+              console.log(`图片加载失败 [${item.name}]:`, url)
             }}
           />
         </View>
