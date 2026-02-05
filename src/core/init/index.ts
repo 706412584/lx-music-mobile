@@ -103,14 +103,8 @@ export default async() => {
     
     if (Platform.OS === 'ios') {
       showIOSInitProgress('✓ 初始化完成！')
-      // 显示完整的初始化步骤
-      setTimeout(() => {
-        Alert.alert(
-          'iOS 初始化完成',
-          iosInitSteps.join('\n'),
-          [{ text: '确定' }]
-        )
-      }, 500)
+      console.log('iOS initialization completed successfully!')
+      console.log('Steps:', iosInitSteps.join(' → '))
     }
 
     return handlePushedHomeScreen

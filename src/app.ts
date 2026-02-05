@@ -108,15 +108,10 @@ void Promise.all([getFontSize(), windowSizeTools.init()]).then(async([fontSize])
       trackIOSStep('✓ 主屏幕推送成功')
       trackIOSStep('✓ 应用启动完成！')
       
+      // iOS: 移除启动成功弹窗，让应用正常显示
       if (Platform.OS === 'ios') {
-        // 启动成功后显示完整步骤（可选）
-        setTimeout(() => {
-          Alert.alert(
-            '应用启动成功',
-            `启动步骤:\n${iosAppSteps.join('\n')}`,
-            [{ text: '确定' }]
-          )
-        }, 1000)
+        console.log('iOS App launched successfully!')
+        console.log('Steps:', iosAppSteps.join(' → '))
       }
       
       void handlePushedHomeScreen()
