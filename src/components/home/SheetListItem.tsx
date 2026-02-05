@@ -50,11 +50,14 @@ const SheetListItem = memo(({ item, onPress, onDelete, showDeleteButton = true }
       return
     }
 
+    console.log('SheetListItem - 歌单信息:', { id: item.id, name: item.name, img: item.img, source: item.source })
+
     // 获取歌曲数量
     let cancelled = false
     void getListMusics(item.id).then((musics) => {
       if (!cancelled) {
         const count = musics.length
+        console.log(`歌单 ${item.name} 歌曲数量:`, count)
         setSongCount(count)
         songCountCache.set(item.id, count)
       }
@@ -130,7 +133,19 @@ const SheetListItem = memo(({ item, onPress, onDelete, showDeleteButton = true }
                 : require('@/resources/images/album-default.jpeg')
             }
             style={styles.cover}
+            onError={(e) => {
+              console.log('图片加载失败:', item.img, e.nativeEvent.error)
+            }}
+            onLoad={() => {
+              console.log('图片加载成功:', item.img)
+            }}
           />
+          {/* 调试信息 */}
+          {__DEV__ && item.img && (
+            <Text style={{ position: 'absolute', bottom: 0, fontSize: 8, backgroundColor: 'rgba(0,0,0,0.5)', color: 'white' }}>
+              {item.img ? 'Has URL' : 'No URL'}
+            </Text>
+          )}
         </View>
 
         {/* 歌单信息 */}

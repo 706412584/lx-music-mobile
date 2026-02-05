@@ -33,6 +33,8 @@ export const handlePlay = async(id: string, source: Source, list?: LX.Music.Musi
 
 export const handleCollect = async(id: string, source: Source, name: string, img?: string) => {
   const listId = getListId(id, source)
+  
+  console.log('handleCollect 收到的参数:', { id, source, name, img })
 
   const targetList = listState.userList.find(l => l.sourceListId == listId)
   if (targetList) {
@@ -48,6 +50,9 @@ export const handleCollect = async(id: string, source: Source, name: string, img
 
   const list = await getListDetailAll(source, id)
   const newListId = `${source}_${toMD5(listId)}`
+  
+  console.log('创建歌单，传入 img:', img)
+  
   await createList({
     name,
     id: newListId,

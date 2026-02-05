@@ -29,11 +29,15 @@ export default memo(() => {
 
   const handleCollection = () => {
     if (!songlistState.listDetailInfo.info.name) return
+    const imgUrl = songlistState.listDetailInfo.info.img || info.img
+    console.log('收藏歌单 - 封面图片URL:', imgUrl)
+    console.log('listDetailInfo.info:', songlistState.listDetailInfo.info)
+    console.log('info:', info)
     void handleCollect(
       info.id, 
       info.source, 
       songlistState.listDetailInfo.info.name || info.name,
-      songlistState.listDetailInfo.info.img || info.img
+      imgUrl
     )
   }
 
