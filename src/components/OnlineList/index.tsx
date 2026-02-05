@@ -17,10 +17,13 @@ export interface OnlineListProps {
   ListHeaderComponent?: ListProps['ListHeaderComponent']
   checkHomePagerIdle?: boolean
   rowType?: RowInfoType
+  onBatchDownload?: () => void
 }
 export interface OnlineListType {
   setList: (list: LX.Music.MusicInfoOnline[], isAppend?: boolean, showSource?: boolean) => void
   setStatus: (val: Status) => void
+  enterMultiSelectMode?: () => void
+  exitMultiSelectMode?: () => void
 }
 
 export default forwardRef<OnlineListType, OnlineListProps>(({
@@ -31,6 +34,7 @@ export default forwardRef<OnlineListType, OnlineListProps>(({
   ListHeaderComponent,
   checkHomePagerIdle = false,
   rowType,
+  onBatchDownload,
 }, ref) => {
   const listRef = useRef<ListType>(null)
   const multipleModeBarRef = useRef<MultipleModeBarType>(null)
@@ -47,6 +51,12 @@ export default forwardRef<OnlineListType, OnlineListProps>(({
     setStatus(val) {
       listRef.current?.setStatus(val)
     },
+    enterMultiSelectMode() {
+      hancelMultiSelect()
+    },
+    exitMultiSelectMode() {
+      hancelExitSelect()
+    },
   }))
 
   const hancelMultiSelect = () => {
@@ -60,6 +70,27 @@ export default forwardRef<OnlineListType, OnlineListProps>(({
   const hancelExitSelect = () => {
     multipleModeBarRef.current?.exitSelectMode()
     listRef.current?.setIsMultiSelectMode(false)
+    // 触发退出管理模式事件
+    global.app_event.exitSonglistManageMode?.()
+  }
+
+  const handleBatchDownload = () => {
+    const selectedList = listRef.current?.getSelectedList() || []
+    if (selectedList.length === 0) {
+      global.lx.showToast('请先选择要下载的歌曲')
+      return
+    }
+    
+    // 调用批量下载
+    if (onBatchDownload) {
+      onBatchDownload()
+    } else {
+      // 默认下载逻辑
+      void handleDownload(selectedList[0], selectedList)
+    }
+    
+    // 下载后退出选择模式
+    hancelExitSelect()
   }
 
   const showMenu = (musicInfo: LX.Music.MusicInfoOnline, index: number, position: Position) => {
@@ -99,6 +130,7 @@ export default forwardRef<OnlineListType, OnlineListProps>(({
           onSwitchMode={hancelSwitchSelectMode}
           onSelectAll={isAll => listRef.current?.selectAll(isAll)}
           onExitSelectMode={hancelExitSelect}
+          onDownload={handleBatchDownload}
         />
       </View>
       <ListMusicAdd ref={listMusicAddRef} onAdded={() => { hancelExitSelect() }} />

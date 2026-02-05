@@ -21,15 +21,15 @@ export const handlePlay = async(
   
   if (!list?.length) list = (await getListDetail(id, source, 1)).list
   if (list?.length) {
-    let playList = [...list]
+    let musicList = [...list]
     
     // 如果是随机播放，打乱列表顺序
     if (mode === 'random') {
-      playList = playList.sort(() => Math.random() - 0.5)
+      musicList = musicList.sort(() => Math.random() - 0.5)
       index = 0 // 随机播放从第一首开始
     }
     
-    await setTempList(listId, playList)
+    await setTempList(listId, musicList)
     void playList(LIST_IDS.TEMP, index)
     isPlayingList = true
   }
@@ -39,25 +39,25 @@ export const handlePlay = async(
   
   if (isPlayingList) {
     if (listState.tempListMeta.id == listId) {
-      let playList = [...fullList]
+      let musicList = [...fullList]
       
       // 如果是随机播放，打乱列表顺序
       if (mode === 'random') {
-        playList = playList.sort(() => Math.random() - 0.5)
+        musicList = musicList.sort(() => Math.random() - 0.5)
       }
       
-      await setTempList(listId, playList)
+      await setTempList(listId, musicList)
     }
   } else {
-    let playList = [...fullList]
+    let musicList = [...fullList]
     
     // 如果是随机播放，打乱列表顺序
     if (mode === 'random') {
-      playList = playList.sort(() => Math.random() - 0.5)
+      musicList = musicList.sort(() => Math.random() - 0.5)
       index = 0
     }
     
-    await setTempList(listId, playList)
+    await setTempList(listId, musicList)
     void playList(LIST_IDS.TEMP, index)
   }
 }

@@ -198,6 +198,15 @@ export class AppEvent extends Event {
     this.emit('songlistTagInfoChange', name, id)
   }
 
+  // 进入歌单批量下载模式
+  enterSonglistManageMode() {
+    this.emit('enterSonglistManageMode')
+  }
+
+  // 退出歌单批量下载模式
+  exitSonglistManageMode() {
+    this.emit('exitSonglistManageMode')
+  }
   selectSyncMode(mode: LX.Sync.ModeType) {
     this.emit('selectSyncMode', mode)
   }

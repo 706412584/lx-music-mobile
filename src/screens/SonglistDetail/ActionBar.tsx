@@ -21,11 +21,6 @@ export default memo(() => {
   const info = useListInfo()
   const menuRef = useRef<MenuType>(null)
   const menuButtonRef = useRef<View>(null)
-  const [isManageMode, setIsManageMode] = useState(false)
-
-  const back = () => {
-    void pop(commonState.componentIds.songlistDetail!)
-  }
 
   const handlePlayOrder = () => {
     if (!songlistState.listDetailInfo.info.name) return
@@ -49,7 +44,8 @@ export default memo(() => {
   }
 
   const handleBatchDownload = () => {
-    setIsManageMode(true)
+    // 触发进入批量下载模式事件
+    global.app_event.enterSonglistManageMode()
   }
 
   const handleMenuPress = () => {
@@ -65,10 +61,6 @@ export default memo(() => {
 
   const menuOptions = [
     {
-      action: 'collect',
-      label: t('collect_songlist'),
-    },
-    {
       action: 'download',
       label: '批量下载',
     },
@@ -76,9 +68,6 @@ export default memo(() => {
 
   const handleMenuSelect = (menu: typeof menuOptions[number]) => {
     switch (menu.action) {
-      case 'collect':
-        handleCollection()
-        break
       case 'download':
         handleBatchDownload()
         break
@@ -87,6 +76,9 @@ export default memo(() => {
 
   return (
     <View style={styles.container}>
+      <Button onPress={handleCollection} style={styles.controlBtn}>
+        <Text style={{ ...styles.controlBtnText, color: theme['c-button-font'] }}>{t('collect_songlist')}</Text>
+      </Button>
       <Button onPress={handlePlayOrder} style={styles.controlBtn}>
         <Text style={{ ...styles.controlBtnText, color: theme['c-button-font'] }}>顺序播放</Text>
       </Button>
@@ -108,9 +100,6 @@ export default memo(() => {
           </TouchableOpacity>
         </View>
       </View>
-      <Button onPress={back} style={styles.controlBtn}>
-        <Text style={{ ...styles.controlBtnText, color: theme['c-button-font'] }}>{t('back')}</Text>
-      </Button>
 
       {/* 菜单 */}
       <Menu

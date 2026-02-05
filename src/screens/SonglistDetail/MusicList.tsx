@@ -8,17 +8,30 @@ import { useListInfo } from './state'
 
 export interface MusicListProps {
   componentId: string
+  isManageMode?: boolean
+  onExitManageMode?: () => void
 }
 
 export interface MusicListType {
   loadList: (source: LX.OnlineSource, listId: string) => void
 }
 
-export default forwardRef<MusicListType, MusicListProps>(({ componentId }, ref) => {
+export default forwardRef<MusicListType, MusicListProps>(({ componentId, isManageMode = false, onExitManageMode }, ref) => {
   const listRef = useRef<OnlineListType>(null)
   const headerRef = useRef<HeaderType>(null)
   const isUnmountedRef = useRef(false)
   const info = useListInfo()
+
+  // 监听管理模式变化
+  useEffect(() => {
+    if (isManageMode) {
+      // 进入批量选择模式
+      listRef.current?.enterMultiSelectMode?.()
+    } else {
+      // 退出批量选择模式
+      listRef.current?.exitMultiSelectMode?.()
+    }
+  }, [isManageMode])
 
   useImperativeHandle(ref, () => ({
     async loadList(source, id) {
@@ -112,12 +125,28 @@ export default forwardRef<MusicListType, MusicListProps>(({ componentId }, ref) 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const header = useMemo(() => <Header ref={headerRef} componentId={componentId} />, [])
 
+  const handleBatchDownload = () => {
+    const listDetailInfo = songlistState.listDetailInfo
+    const selectedList = listRef.current?.getSelectedList?.() || []
+    
+    if (selectedList.length === 0) {
+      global.lx.showToast('请先选择要下载的歌曲')
+      return
+    }
+
+    // 调用下载功能
+    void import('@/components/OnlineList/listAction').then(({ handleDownload }) => {
+      void handleDownload(selectedList[0], selectedList)
+    })
+  }
+
   return <OnlineList
     ref={listRef}
     onPlayList={handlePlayList}
     onRefresh={handleRefresh}
     onLoadMore={handleLoadMore}
     ListHeaderComponent={header}
+    onBatchDownload={handleBatchDownload}
     // progressViewOffset={}
    />
 })

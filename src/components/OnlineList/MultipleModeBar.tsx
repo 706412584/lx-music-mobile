@@ -16,6 +16,7 @@ export interface MultipleModeBarProps {
   onSwitchMode: (mode: SelectMode) => void
   onSelectAll: (isAll: boolean) => void
   onExitSelectMode: () => void
+  onDownload?: () => void
 }
 export interface MultipleModeBarType {
   show: () => void
@@ -24,7 +25,7 @@ export interface MultipleModeBarType {
   exitSelectMode: () => void
 }
 
-export default forwardRef<MultipleModeBarType, MultipleModeBarProps>(({ onSelectAll, onSwitchMode, onExitSelectMode }, ref) => {
+export default forwardRef<MultipleModeBarType, MultipleModeBarProps>(({ onSelectAll, onSwitchMode, onExitSelectMode, onDownload }, ref) => {
   // const isGetDetailFailedRef = useRef(false)
   const [visible, setVisible] = useState(false)
   const [animatePlayed, setAnimatPlayed] = useState(true)
@@ -97,7 +98,7 @@ export default forwardRef<MultipleModeBarType, MultipleModeBarProps>(({ onSelect
   const animaStyle = useMemo(() => ({
     ...styles.container,
     height: MULTI_SELECT_BAR_HEIGHT,
-    // backgroundColor: theme['c-content-background'],
+    backgroundColor: theme['c-content-background'],
     borderBottomColor: theme['c-border-background'],
     opacity: animFade, // Bind opacity to animated value
     transform: [
@@ -125,12 +126,17 @@ export default forwardRef<MultipleModeBarType, MultipleModeBarProps>(({ onSelect
         <TouchableOpacity onPress={handleSelectAll} style={styles.btn}>
           <Text color={theme['c-button-font']}>{global.i18n.t(isSelectAll ? 'list_select_unall' : 'list_select_all')}</Text>
         </TouchableOpacity>
+        {onDownload && (
+          <TouchableOpacity onPress={onDownload} style={styles.btn}>
+            <Text color={theme['c-button-font']}>下载</Text>
+          </TouchableOpacity>
+        )}
         <TouchableOpacity onPress={onExitSelectMode} style={styles.btn}>
           <Text color={theme['c-button-font']}>{global.i18n.t('list_select_cancel')}</Text>
         </TouchableOpacity>
       </Animated.View>
     )
-  }, [animaStyle, selectMode, theme, handleSelectAll, isSelectAll, onExitSelectMode, onSwitchMode])
+  }, [animaStyle, selectMode, theme, handleSelectAll, isSelectAll, onExitSelectMode, onSwitchMode, onDownload])
 
   return !visible && animatePlayed ? null : component
 })
