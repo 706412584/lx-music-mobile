@@ -1,5 +1,5 @@
-import { memo, useCallback, useState, useRef } from 'react'
-import { View, FlatList, StyleSheet, TouchableOpacity, Alert } from 'react-native'
+import { memo, useCallback, useState, useRef, useEffect } from 'react'
+import { View, FlatList, StyleSheet, TouchableOpacity, Alert, BackHandler } from 'react-native'
 import { Text as RNText } from 'react-native'
 import { useTheme } from '@/store/theme/hook'
 import { useI18n } from '@/lang'
@@ -13,6 +13,10 @@ import { setTempList } from '@/core/list'
 import { playList } from '@/core/player/player'
 import { LIST_IDS } from '@/config/constant'
 import ChoosePath from '@/components/common/ChoosePath'
+import { getData, saveData } from '@/plugins/storage'
+
+const LOCAL_MUSIC_STORAGE_KEY = 'local_music_list'
+const LOCAL_MUSIC_PATHS_KEY = 'local_music_paths'
 
 /**
  * 本地音乐页面
@@ -22,30 +26,68 @@ const LocalMusic = memo(({ onBack }: { onBack?: () => void }) => {
   const t = useI18n()
   const [musicList, setMusicList] = useState<LX.Music.MusicInfoLocal[]>([])
   const [loading, setLoading] = useState(false)
+  const [selectedPaths, setSelectedPaths] = useState<string[]>([])
   const choosePathRef = useRef<any>(null)
 
-  const handleSelectFiles = useCallback(async () => {
-    choosePathRef.current?.show({
-      title: t('local_music_select_folder'),
-      dirOnly: true,
+  // 加载本地音乐列表和已选择的目录
+  useEffect(() => {
+    const loadLocalMusic = async () => {
+      try {
+        const savedList = await getData<LX.Music.MusicInfoLocal[]>(LOCAL_MUSIC_STORAGE_KEY)
+        if (savedList && Array.isArray(savedList)) {
+          setMusicList(savedList)
+        }
+        
+        const savedPaths = await getData<string[]>(LOCAL_MUSIC_PATHS_KEY)
+        if (savedPaths && Array.isArray(savedPaths)) {
+          setSelectedPaths(savedPaths)
+        }
+      } catch (error) {
+        console.error('Load local music error:', error)
+      }
+    }
+    void loadLocalMusic()
+  }, [])
+
+  // 监听硬件返回键
+  useEffect(() => {
+    if (!onBack) return
+
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
+      onBack()
+      return true // 阻止默认行为
     })
-  }, [t])
 
-  const handlePathSelected = useCallback(async (path: string) => {
+    return () => backHandler.remove()
+  }, [onBack])
+
+  // 保存本地音乐列表
+  const saveMusicList = useCallback(async (list: LX.Music.MusicInfoLocal[]) => {
     try {
-      setLoading(true)
-      toast(t('local_music_scanning'))
+      await saveData(LOCAL_MUSIC_STORAGE_KEY, list)
+    } catch (error) {
+      console.error('Save local music error:', error)
+    }
+  }, [])
 
+  // 保存已选择的目录
+  const saveSelectedPaths = useCallback(async (paths: string[]) => {
+    try {
+      await saveData(LOCAL_MUSIC_PATHS_KEY, paths)
+    } catch (error) {
+      console.error('Save paths error:', error)
+    }
+  }, [])
+
+  // 扫描指定目录的音乐文件
+  const scanMusicFromPath = useCallback(async (path: string) => {
+    try {
       // 扫描音频文件
       const files = await scanAudioFiles(path)
 
       if (!files || files.length === 0) {
-        toast(t('local_music_no_files'))
-        setLoading(false)
-        return
+        return []
       }
-
-      toast(t('local_music_loading', { count: files.length }))
 
       // 读取文件元数据
       const musicInfos: LX.Music.MusicInfoLocal[] = []
@@ -63,7 +105,43 @@ const LocalMusic = memo(({ onBack }: { onBack?: () => void }) => {
         }
       }
 
-      setMusicList(prev => [...prev, ...musicInfos])
+      return musicInfos
+    } catch (error) {
+      console.error('Scan music error:', error)
+      return []
+    }
+  }, [])
+
+  const handleSelectFiles = useCallback(async () => {
+    choosePathRef.current?.show({
+      title: t('local_music_select_folder'),
+      dirOnly: true,
+    })
+  }, [t])
+
+  const handlePathSelected = useCallback(async (path: string) => {
+    try {
+      setLoading(true)
+      toast(t('local_music_scanning'))
+
+      const musicInfos = await scanMusicFromPath(path)
+
+      if (musicInfos.length === 0) {
+        toast(t('local_music_no_files'))
+        setLoading(false)
+        return
+      }
+
+      toast(t('local_music_loading', { count: musicInfos.length }))
+
+      // 添加到已选择的目录列表（去重）
+      const newPaths = selectedPaths.includes(path) ? selectedPaths : [...selectedPaths, path]
+      setSelectedPaths(newPaths)
+      await saveSelectedPaths(newPaths)
+
+      const newList = [...musicList, ...musicInfos]
+      setMusicList(newList)
+      await saveMusicList(newList)
       toast(t('local_music_loaded', { count: musicInfos.length }))
     } catch (error) {
       console.error('Select files error:', error)
@@ -71,7 +149,36 @@ const LocalMusic = memo(({ onBack }: { onBack?: () => void }) => {
     } finally {
       setLoading(false)
     }
-  }, [t])
+  }, [t, musicList, selectedPaths, saveMusicList, saveSelectedPaths, scanMusicFromPath])
+
+  // 刷新所有已选择的目录
+  const handleRefresh = useCallback(async () => {
+    if (selectedPaths.length === 0) {
+      toast(t('local_music_no_paths'))
+      return
+    }
+
+    try {
+      setLoading(true)
+      toast(t('local_music_refreshing'))
+
+      let allMusicInfos: LX.Music.MusicInfoLocal[] = []
+      
+      for (const path of selectedPaths) {
+        const musicInfos = await scanMusicFromPath(path)
+        allMusicInfos = [...allMusicInfos, ...musicInfos]
+      }
+
+      setMusicList(allMusicInfos)
+      await saveMusicList(allMusicInfos)
+      toast(t('local_music_refreshed', { count: allMusicInfos.length }))
+    } catch (error) {
+      console.error('Refresh error:', error)
+      toast(t('local_music_refresh_error'))
+    } finally {
+      setLoading(false)
+    }
+  }, [selectedPaths, t, saveMusicList, scanMusicFromPath])
 
   const handlePlay = useCallback(async (index: number) => {
     try {
@@ -91,14 +198,17 @@ const LocalMusic = memo(({ onBack }: { onBack?: () => void }) => {
         { text: t('cancel'), style: 'cancel' },
         {
           text: t('confirm'),
-          onPress: () => {
+          onPress: async () => {
             setMusicList([])
+            setSelectedPaths([])
+            await saveMusicList([])
+            await saveSelectedPaths([])
             toast(t('local_music_cleared'))
           },
         },
       ],
     )
-  }, [t])
+  }, [t, saveMusicList, saveSelectedPaths])
 
   const renderItem = useCallback(({ item, index }: { item: LX.Music.MusicInfoLocal; index: number }) => {
     const imgUrl = item.meta?.picUrl
@@ -159,35 +269,43 @@ const LocalMusic = memo(({ onBack }: { onBack?: () => void }) => {
 
   return (
     <View style={[styles.container, { backgroundColor: theme['c-primary-alpha-50'] }]}>
-      {/* 头部 - 只在有音乐时显示 */}
-      {musicList.length > 0 && (
+      {/* 头部 - 始终显示 */}
+      {onBack && (
         <View style={[styles.header, { backgroundColor: theme['c-primary-alpha-600'] }]}>
-          {onBack && (
-            <TouchableOpacity
-              style={styles.backBtn}
-              onPress={onBack}
-              activeOpacity={0.7}
-            >
-              <Icon name="chevron-left" size={24} color={theme['c-font']} />
-            </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.backBtn}
+            onPress={onBack}
+            activeOpacity={0.7}
+          >
+            <Icon name="chevron-left" size={24} color={theme['c-font']} />
+          </TouchableOpacity>
+          {musicList.length > 0 && (
+            <View style={styles.headerButtons}>
+              <TouchableOpacity
+                style={[styles.headerBtn, { backgroundColor: theme['c-button-font'] }]}
+                onPress={handleRefresh}
+                activeOpacity={0.7}
+                disabled={loading}
+              >
+                <Icon name="single-loop" size={18} color="#FFFFFF" />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.headerBtn, { backgroundColor: theme['c-button-font'], marginLeft: scaleSizeW(8) }]}
+                onPress={handleSelectFiles}
+                activeOpacity={0.7}
+                disabled={loading}
+              >
+                <Icon name="add_folder" size={18} color="#FFFFFF" />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.headerBtn, { backgroundColor: theme['c-button-font'], marginLeft: scaleSizeW(8) }]}
+                onPress={handleClearAll}
+                activeOpacity={0.7}
+              >
+                <Icon name="remove" size={18} color="#FFFFFF" />
+              </TouchableOpacity>
+            </View>
           )}
-          <View style={styles.headerButtons}>
-            <TouchableOpacity
-              style={[styles.headerBtn, { backgroundColor: theme['c-button-font'] }]}
-              onPress={handleSelectFiles}
-              activeOpacity={0.7}
-              disabled={loading}
-            >
-              <Icon name="add_folder" size={18} color="#FFFFFF" />
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.headerBtn, { backgroundColor: theme['c-button-font'], marginLeft: scaleSizeW(8) }]}
-              onPress={handleClearAll}
-              activeOpacity={0.7}
-            >
-              <Icon name="remove" size={18} color="#FFFFFF" />
-            </TouchableOpacity>
-          </View>
         </View>
       )}
 

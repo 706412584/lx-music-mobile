@@ -1,5 +1,5 @@
 import { memo, useCallback, useEffect, useState } from 'react'
-import { View, FlatList, StyleSheet, TouchableOpacity } from 'react-native'
+import { View, FlatList, StyleSheet, TouchableOpacity, BackHandler } from 'react-native'
 import { Text as RNText } from 'react-native'
 import { useTheme } from '@/store/theme/hook'
 import { useI18n } from '@/lang'
@@ -30,6 +30,18 @@ const PlayHistory = memo(({ onBack }: { onBack?: () => void }) => {
       global.state_event.off('playPlayedListChanged', handleUpdate)
     }
   }, [])
+
+  // 监听硬件返回键
+  useEffect(() => {
+    if (!onBack) return
+
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
+      onBack()
+      return true // 阻止默认行为
+    })
+
+    return () => backHandler.remove()
+  }, [onBack])
 
   const handlePlay = useCallback(async (item: LX.Player.PlayMusicInfo, index: number) => {
     try {

@@ -65,10 +65,14 @@ export default {
     global.state_event.playProgressChanged({ ...state.progress })
   },
   addPlayedList(info: LX.Player.PlayMusicInfo) {
-    if (state.playedList.some(m => m.musicInfo.id == info.musicInfo.id)) return
+    // 移除去重逻辑，允许重复添加到播放历史
+    // 但如果最后一首就是当前歌曲，则不重复添加
+    const lastPlayed = state.playedList[state.playedList.length - 1]
+    if (lastPlayed && lastPlayed.musicInfo.id === info.musicInfo.id) return
+    
     state.playedList.push(info)
 
-    global.state_event.playPlayedListChanged({ ...state.playedList })
+    global.state_event.playPlayedListChanged([...state.playedList])
   },
   removePlayedList(index: number) {
     state.playedList.splice(index, 1)

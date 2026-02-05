@@ -11,6 +11,7 @@ import { Operations } from '@/components/home'
 
 interface BlankViewProps {
   onSearch: (keyword: string) => void
+  onNavigate?: (page: string) => void
 }
 type Source = LX.OnlineSource | 'all'
 
@@ -18,7 +19,7 @@ export interface BlankViewType {
   show: (source: Source) => void
 }
 
-export default forwardRef<BlankViewType, BlankViewProps>(({ onSearch }, ref) => {
+export default forwardRef<BlankViewType, BlankViewProps>(({ onSearch, onNavigate }, ref) => {
   // const [listType, setListType] = useState<SearchState['searchType']>('music')
   const [visible, setVisible] = useState(false)
   const hotSearchRef = useRef<HotSearchType>(null)
@@ -51,7 +52,7 @@ export default forwardRef<BlankViewType, BlankViewProps>(({ onSearch }, ref) => 
         ? (
             <ScrollView>
               <View style={styles.content}>
-                <Operations />
+                <Operations onNavigate={onNavigate} />
                 { isShowHotSearch ? <HotSearch ref={hotSearchRef} onSearch={onSearch} /> : null }
                 { isShowHistorySearch ? <HistorySearch ref={historySearchRef} onSearch={onSearch} /> : null }
               </View>
@@ -59,7 +60,7 @@ export default forwardRef<BlankViewType, BlankViewProps>(({ onSearch }, ref) => 
           )
         : (
             <View style={styles.container}>
-              <Operations />
+              <Operations onNavigate={onNavigate} />
               <View style={styles.welcome}>
                 <Text size={22} color={theme['c-font-label']}>{t('search__welcome')}</Text>
               </View>

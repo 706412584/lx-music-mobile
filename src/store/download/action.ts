@@ -175,6 +175,8 @@ export default {
       if (status === 'completed') item.isComplate = true
       pendingUpdates.add('count')
       scheduleBatchUpdate()
+      // 立即触发更新事件，确保UI能及时响应
+      global.state_event.emit('downloadListUpdated')
     }
   },
 
@@ -199,7 +201,12 @@ export default {
 
   clearCompleted() {
     console.log('clearCompleted called, before:', state.list.length)
-    state.list = state.list.filter(i => !i.isComplate)
+    // Use splice to modify array in place for reactivity
+    for (let i = state.list.length - 1; i >= 0; i--) {
+      if (state.list[i].isComplate) {
+        state.list.splice(i, 1)
+      }
+    }
     console.log('clearCompleted after filter:', state.list.length)
     pendingUpdates.add('count')
     scheduleBatchUpdate()
@@ -215,7 +222,8 @@ export default {
         })
       }
     })
-    state.list = []
+    // Use splice to clear array in place for reactivity
+    state.list.splice(0, state.list.length)
     state.downloadingCount = 0
     console.log('clearAll after clear:', state.list.length)
     pendingUpdates.add('count')
