@@ -56,9 +56,14 @@ export const TEMP_FILE_PATH = temporaryDirectoryPath + '/tempFile'
 //   // return windowSize
 // }
 
-export const checkStoragePermissions = async() => PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE)
+export const checkStoragePermissions = async() => {
+  if (Platform.OS === 'ios') return true // iOS doesn't need storage permissions
+  return PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE)
+}
 
 export const requestStoragePermission = async() => {
+  if (Platform.OS === 'ios') return true // iOS doesn't need storage permissions
+  
   const isGranted = await checkStoragePermissions()
   if (isGranted) return isGranted
 
