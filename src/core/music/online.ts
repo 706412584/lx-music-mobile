@@ -5,6 +5,8 @@ import {
 } from '@/utils/data'
 import { updateListMusics } from '@/core/list'
 import settingState from '@/store/setting/state'
+import { state as downloadState } from '@/store/download/state'
+import { existsFile } from '@/utils/fs'
 
 import {
   buildLyricInfo,
@@ -46,12 +48,26 @@ export const getMusicUrl = async({ musicInfo, quality, isRefresh, allowToggleSou
   allowToggleSource?: boolean
   onToggleSource?: (musicInfo?: LX.Music.MusicInfoOnline) => void
 }): Promise<string> => {
-  // if (!musicInfo._types[type]) {
-  //   // 兼容旧版酷我源搜索列表过滤128k音质的bug
-  //   if (!(musicInfo.source == 'kw' && type == '128k')) throw new Error('该歌曲没有可播放的音频')
-
-  //   // return Promise.reject(new Error('该歌曲没有可播放的音频'))
-  // }
+  // 检查是否已下载完成
+  if (!isRefresh) {
+    const downloadedItem = downloadState.list.find(item => 
+      item.metadata.musicInfo.id === musicInfo.id && 
+      item.status === 'completed'
+    )
+    
+    if (downloadedItem) {
+      console.log('[getMusicUrl] 找到已下载文件:', downloadedItem.metadata.filePath)
+      // 检查文件是否存在
+      const fileExists = await existsFile(downloadedItem.metadata.filePath).catch(() => false)
+      if (fileExists) {
+        console.log('[getMusicUrl] 使用本地下载文件')
+        return `file://${downloadedItem.metadata.filePath}`
+      } else {
+        console.log('[getMusicUrl] 下载文件不存在，使用在线播放')
+      }
+    }
+  }
+  
   const targetQuality = quality ?? getPlayQuality(settingState.setting['player.playQuality'], musicInfo)
   const cachedUrl = await getStoreMusicUrl(musicInfo, targetQuality)
   if (cachedUrl && !isRefresh) return cachedUrl

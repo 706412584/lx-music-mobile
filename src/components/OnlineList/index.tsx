@@ -74,14 +74,10 @@ export default forwardRef<OnlineListType, OnlineListProps>(({
 
   const handleBatchDownload = () => {
     const selectedList = listRef.current?.getSelectedList() || []
-    console.log('[OnlineList] 批量下载 - 选中歌曲数:', selectedList.length)
     
     if (selectedList.length === 0) {
-      console.log('[OnlineList] 没有选中歌曲，返回')
       return
     }
-    
-    console.log('[OnlineList] 开始下载')
     
     // 直接调用下载逻辑
     void handleDownload(selectedList[0], selectedList)
