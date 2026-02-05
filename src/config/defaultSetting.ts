@@ -19,7 +19,7 @@ const defaultSetting: LX.AppSetting = {
   'player.startupPushPlayDetailScreen': false,
   'player.togglePlayMethod': 'listLoop',
   'player.playQuality': '128k',
-  'player.isSavePlayTime': false,
+  'player.isSavePlayTime': true,
   'player.volume': 1,
   'player.playbackRate': 1,
   'player.cacheSize': '1024',
@@ -57,8 +57,8 @@ const defaultSetting: LX.AppSetting = {
   'desktopLyric.style.lyricPlayedColor': 'rgba(7, 197, 86, 1)',
   'desktopLyric.style.lyricShadowColor': 'rgba(0, 0, 0, 0.6)',
 
-  'search.isShowHotSearch': false,
-  'search.isShowHistorySearch': false,
+  'search.isShowHotSearch': true,
+  'search.isShowHistorySearch': true,
 
   'list.isClickPlayList': false,
   'list.isShowSource': true,
