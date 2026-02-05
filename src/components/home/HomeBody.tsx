@@ -1,5 +1,5 @@
 import { memo, useState, useEffect } from 'react'
-import { View, StyleSheet } from 'react-native'
+import { View, StyleSheet, BackHandler } from 'react-native'
 import { SearchBar, Operations, Sheets } from '@/components/home'
 import { scaleSizeH } from '@/utils/pixelRatio'
 import { useHorizontalMode } from '@/utils/hooks'
@@ -49,6 +49,25 @@ const HomeBody = memo(() => {
       global.state_event.off('mylistToggled', handleListToggled)
       global.app_event.off('changeLoveListVisible', handleDrawerOpen)
     }
+  }, [currentPage])
+
+  // 处理返回键
+  useEffect(() => {
+    const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
+      if (currentPage === 'music_list' || currentPage === 'play_history' || currentPage === 'local_music') {
+        setCurrentPage('home')
+        // 清空 activeListId，以便下次可以重新进入同一个歌单
+        const { setActiveList } = require('@/core/list')
+        const listState = require('@/store/list/state').default
+        if (listState.activeListId) {
+          listState.activeListId = ''
+        }
+        return true // 阻止默认返回行为
+      }
+      return false // 允许默认返回行为
+    })
+
+    return () => backHandler.remove()
   }, [currentPage])
 
   // 如果显示其他页面，直接返回对应页面

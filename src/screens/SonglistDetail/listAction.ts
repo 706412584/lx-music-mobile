@@ -9,32 +9,61 @@ import { type Source } from '@/store/songlist/state'
 
 const getListId = (id: string, source: LX.OnlineSource) => `${source}__${id}`
 
-export const handlePlay = async(id: string, source: Source, list?: LX.Music.MusicInfoOnline[], index = 0) => {
+export const handlePlay = async(
+  id: string, 
+  source: Source, 
+  list?: LX.Music.MusicInfoOnline[], 
+  index = 0,
+  mode: 'order' | 'random' = 'order'
+) => {
   const listId = getListId(id, source)
   let isPlayingList = false
-  // console.log(list)
+  
   if (!list?.length) list = (await getListDetail(id, source, 1)).list
   if (list?.length) {
-    await setTempList(listId, [...list])
+    let playList = [...list]
+    
+    // 如果是随机播放，打乱列表顺序
+    if (mode === 'random') {
+      playList = playList.sort(() => Math.random() - 0.5)
+      index = 0 // 随机播放从第一首开始
+    }
+    
+    await setTempList(listId, playList)
     void playList(LIST_IDS.TEMP, index)
     isPlayingList = true
   }
+  
   const fullList = await getListDetailAll(source, id)
   if (!fullList.length) return
+  
   if (isPlayingList) {
     if (listState.tempListMeta.id == listId) {
-      await setTempList(listId, [...fullList])
+      let playList = [...fullList]
+      
+      // 如果是随机播放，打乱列表顺序
+      if (mode === 'random') {
+        playList = playList.sort(() => Math.random() - 0.5)
+      }
+      
+      await setTempList(listId, playList)
     }
   } else {
-    await setTempList(listId, [...fullList])
+    let playList = [...fullList]
+    
+    // 如果是随机播放，打乱列表顺序
+    if (mode === 'random') {
+      playList = playList.sort(() => Math.random() - 0.5)
+      index = 0
+    }
+    
+    await setTempList(listId, playList)
     void playList(LIST_IDS.TEMP, index)
   }
 }
 
 export const handleCollect = async(id: string, source: Source, name: string, img?: string) => {
   const listId = getListId(id, source)
-  
-  console.log('handleCollect 收到的参数:', { id, source, name, img })
 
   const targetList = listState.userList.find(l => l.sourceListId == listId)
   if (targetList) {
@@ -48,32 +77,34 @@ export const handleCollect = async(id: string, source: Source, name: string, img
     return
   }
 
-  console.log('开始获取歌单详情...')
-  const list = await getListDetailAll(source, id)
-  console.log('获取到歌曲数量:', list.length)
-  
-  const newListId = `${source}_${toMD5(listId)}`
-  
-  console.log('创建歌单，传入 img:', img)
-  
-  await createList({
-    name,
-    id: newListId,
-    list,
-    source,
-    sourceListId: id,
-    img,
+  // 弹出选择对话框
+  const choice = await confirmDialog({
+    message: '选择收藏方式',
+    cancelButtonText: '收藏到我的歌单',
+    confirmButtonText: '收藏歌单',
   })
+
+  const list = await getListDetailAll(source, id)
   
-  console.log('歌单创建完成，等待数据保存...')
-  
-  // 等待一小段时间确保数据已保存
-  await new Promise(resolve => setTimeout(resolve, 100))
-  
-  console.log('触发更新事件')
-  
-  // 清除歌曲数量缓存，确保显示正确的数量
-  global.state_event.emit('mylistUpdated', listState.allList)
-  
-  toast(global.i18n.t('collect_success'))
+  if (choice) {
+    // 收藏歌单：保留来源信息
+    const newListId = `${source}_${toMD5(listId)}`
+    await createList({
+      name,
+      id: newListId,
+      list,
+      source,
+      sourceListId: id,
+      img,
+    })
+    toast('已收藏到收藏歌单')
+  } else {
+    // 收藏到我的歌单：不保留来源信息
+    await createList({
+      name,
+      list,
+      img,
+    })
+    toast('已收藏到我的歌单')
+  }
 }

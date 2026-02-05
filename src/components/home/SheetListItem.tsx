@@ -49,14 +49,11 @@ const SheetListItem = memo(({ item, onPress, isManageMode = false, isSelected = 
       return
     }
 
-    console.log('SheetListItem - 歌单信息:', { id: item.id, name: item.name, img: item.img, source: item.source })
-
     // 获取歌曲数量
     let cancelled = false
     void getListMusics(item.id).then((musics) => {
       if (!cancelled) {
         const count = musics.length
-        console.log(`歌单 ${item.name} 歌曲数量:`, count)
         setSongCount(count)
         songCountCache.set(item.id, count)
       }
@@ -74,7 +71,20 @@ const SheetListItem = memo(({ item, onPress, isManageMode = false, isSelected = 
 
   // 监听列表更新事件，清除缓存并重新获取
   useEffect(() => {
-    const handleListUpdated = () => {
+    const handleListUpdated = (ids?: string[] | Array<LX.List.MyDefaultListInfo | LX.List.MyLoveListInfo | LX.List.UserListInfo>) => {
+      // 如果传入了 ids 数组，检查当前歌单是否在更新列表中
+      if (Array.isArray(ids) && ids.length > 0) {
+        // 如果是字符串数组（来自 myListMusicUpdate）
+        if (typeof ids[0] === 'string') {
+          if (!(ids as string[]).includes(item.id)) {
+            return // 不是当前歌单，不需要更新
+          }
+        } else {
+          // 如果是对象数组（来自 mylistUpdated），不处理，等待 myListMusicUpdate
+          return
+        }
+      }
+
       // 清除当前歌单的缓存
       songCountCache.delete(item.id)
       // 重新获取歌曲数量
@@ -88,12 +98,15 @@ const SheetListItem = memo(({ item, onPress, isManageMode = false, isSelected = 
       })
     }
 
+    // 监听多个可能触发列表更新的事件
     global.state_event.on('mylistUpdated', handleListUpdated)
+    global.app_event.on('myListMusicUpdate', handleListUpdated)
 
     return () => {
       global.state_event.off('mylistUpdated', handleListUpdated)
+      global.app_event.off('myListMusicUpdate', handleListUpdated)
     }
-  }, [item.id])
+  }, [item.id, item.name])
 
   const handlePress = () => {
     onPress(item)

@@ -143,7 +143,10 @@ export const createList = async({ name, id = `userlist_${Date.now()}`, list = []
       img,
     },
   ])
-  if (list) await addListMusics(id, list, settingState.setting['list.addMusicLocationType'])
+  
+  if (list && list.length > 0) {
+    await addListMusics(id, list, settingState.setting['list.addMusicLocationType'])
+  }
 }
 
 /**
