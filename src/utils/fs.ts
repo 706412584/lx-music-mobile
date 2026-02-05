@@ -5,14 +5,14 @@ import { Platform } from 'react-native'
 let FileSystem: any
 let Dirs: any
 let AndroidScoped: any
-let getExternalStoragePaths: any
+let _getExternalStoragePaths: any
 
 if (Platform.OS === 'android') {
   const RNFileSystem = require('react-native-file-system')
   FileSystem = RNFileSystem.FileSystem
   Dirs = RNFileSystem.Dirs
   AndroidScoped = RNFileSystem.AndroidScoped
-  getExternalStoragePaths = RNFileSystem.getExternalStoragePaths
+  _getExternalStoragePaths = RNFileSystem.getExternalStoragePaths
 }
 
 // 导出类型定义
@@ -45,7 +45,7 @@ export const getExternalStoragePaths = async(is_removable?: boolean) => {
     // iOS 没有外部存储概念，返回文档目录
     return [RNFS.DocumentDirectoryPath]
   }
-  return getExternalStoragePaths(is_removable)
+  return _getExternalStoragePaths(is_removable)
 }
 
 export const selectManagedFolder = async(isPersist: boolean = false) => {
