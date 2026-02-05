@@ -48,7 +48,10 @@ export const handleCollect = async(id: string, source: Source, name: string, img
     return
   }
 
+  console.log('开始获取歌单详情...')
   const list = await getListDetailAll(source, id)
+  console.log('获取到歌曲数量:', list.length)
+  
   const newListId = `${source}_${toMD5(listId)}`
   
   console.log('创建歌单，传入 img:', img)
@@ -61,6 +64,8 @@ export const handleCollect = async(id: string, source: Source, name: string, img
     sourceListId: id,
     img,
   })
+  
+  console.log('歌单创建完成，触发更新事件')
   
   // 清除歌曲数量缓存，确保显示正确的数量
   global.state_event.emit('mylistUpdated', listState.allList)
