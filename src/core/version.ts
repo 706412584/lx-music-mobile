@@ -55,10 +55,13 @@ export const checkUpdate = async() => {
 
   if (!versionInfo.isLatest) {
     if (versionInfo.isUnknown) {
-      const time = await getIgnoreVersionFailTipTime()
-      if (Date.now() - time < 7 * 86400000) return
-      saveIgnoreVersionFailTipTime(Date.now())
-      showModal()
+      // 版本检查失败时不显示弹窗，避免影响用户体验
+      // const time = await getIgnoreVersionFailTipTime()
+      // if (Date.now() - time < 7 * 86400000) return
+      // saveIgnoreVersionFailTipTime(Date.now())
+      // showModal()
+      console.log('Version check failed, skipping modal')
+      return
     } else if (versionInfo.newVersion.version != await getIgnoreVersion()) {
       showModal()
     }
