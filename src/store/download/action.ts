@@ -9,8 +9,7 @@ import {
   resumeAllDownloads,
   retryDownload,
 } from '@/core/download'
-import { requestStoragePermission } from '@/core/common'
-import { toast } from '@/utils/tools'
+import { toast, requestStoragePermission } from '@/utils/tools'
 import type { DownloadStatusType, DownloadFailReasonType } from '@/core/download/stateMachine'
 
 // 批量状态更新队列
