@@ -1,6 +1,6 @@
 import { NativeModules, Platform } from 'react-native'
 
-const { CryptoModule } = NativeModules
+const CryptoModule = Platform.OS === 'android' ? NativeModules.CryptoModule : null
 
 // export const testRsa = (text: string, key: string) => {
 //   // console.log(sourceFilePath, targetFilePath)

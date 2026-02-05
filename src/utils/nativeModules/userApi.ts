@@ -1,6 +1,6 @@
 import { NativeEventEmitter, NativeModules, Platform } from 'react-native'
 
-const { UserApiModule } = NativeModules
+const UserApiModule = Platform.OS === 'android' ? NativeModules.UserApiModule : null
 
 let loadScriptInfo: LX.UserApi.UserApiInfo | null = null
 export const loadScript = Platform.OS === 'android'

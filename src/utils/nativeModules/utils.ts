@@ -1,6 +1,6 @@
 import { AppState, NativeEventEmitter, NativeModules, Platform } from 'react-native'
 
-const { UtilsModule } = NativeModules
+const UtilsModule = Platform.OS === 'android' ? NativeModules.UtilsModule : null
 
 export const exitApp = Platform.OS === 'android' ? UtilsModule.exitApp : () => {}
 

@@ -1,6 +1,6 @@
 import { NativeModules, NativeEventEmitter, Platform } from 'react-native'
 
-const { LyricModule } = NativeModules
+const LyricModule = Platform.OS === 'android' ? NativeModules.LyricModule : null
 
 // export const themes = [
 //   { id: 'green', value: '#07c556' },
