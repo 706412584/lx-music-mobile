@@ -1,4 +1,4 @@
-import { NativeModules } from 'react-native'
+import { NativeModules, Platform } from 'react-native'
 
 const { CryptoModule } = NativeModules
 
@@ -24,64 +24,82 @@ export enum AES_MODE {
   ECB_128_NoPadding = 'AES',
 }
 
-export const generateRsaKey = async() => {
-  // console.log(sourceFilePath, targetFilePath)
-  const key = await CryptoModule.generateRsaKey() as { publicKey: string, privateKey: string }
-  return {
-    publicKey: `${KEY_PREFIX.publicKeyStart}\n${key.publicKey}${KEY_PREFIX.publicKeyEnd}`,
-    privateKey: `${KEY_PREFIX.privateKeyStart}\n${key.privateKey}${KEY_PREFIX.privateKeyEnd}`,
-  }
-}
+export const generateRsaKey = Platform.OS === 'android'
+  ? async() => {
+      // console.log(sourceFilePath, targetFilePath)
+      const key = await CryptoModule.generateRsaKey() as { publicKey: string, privateKey: string }
+      return {
+        publicKey: `${KEY_PREFIX.publicKeyStart}\n${key.publicKey}${KEY_PREFIX.publicKeyEnd}`,
+        privateKey: `${KEY_PREFIX.privateKeyStart}\n${key.privateKey}${KEY_PREFIX.privateKeyEnd}`,
+      }
+    }
+  : async() => ({ publicKey: '', privateKey: '' })
 
-export const rsaEncrypt = async(text: string, key: string, padding: RSA_PADDING): Promise<string> => {
-  // console.log(sourceFilePath, targetFilePath)
-  return CryptoModule.rsaEncrypt(text, key
-    .replace(KEY_PREFIX.publicKeyStart, '')
-    .replace(KEY_PREFIX.publicKeyEnd, ''),
-  padding)
-}
+export const rsaEncrypt = Platform.OS === 'android'
+  ? async(text: string, key: string, padding: RSA_PADDING): Promise<string> => {
+      // console.log(sourceFilePath, targetFilePath)
+      return CryptoModule.rsaEncrypt(text, key
+        .replace(KEY_PREFIX.publicKeyStart, '')
+        .replace(KEY_PREFIX.publicKeyEnd, ''),
+      padding)
+    }
+  : async() => ''
 
-export const rsaDecrypt = async(text: string, key: string, padding: RSA_PADDING): Promise<string> => {
-  // console.log(sourceFilePath, targetFilePath)
-  return CryptoModule.rsaDecrypt(text, key
-    .replace(KEY_PREFIX.privateKeyStart, '')
-    .replace(KEY_PREFIX.privateKeyEnd, ''),
-  padding)
-}
+export const rsaDecrypt = Platform.OS === 'android'
+  ? async(text: string, key: string, padding: RSA_PADDING): Promise<string> => {
+      // console.log(sourceFilePath, targetFilePath)
+      return CryptoModule.rsaDecrypt(text, key
+        .replace(KEY_PREFIX.privateKeyStart, '')
+        .replace(KEY_PREFIX.privateKeyEnd, ''),
+      padding)
+    }
+  : async() => ''
 
-export const rsaEncryptSync = (text: string, key: string, padding: RSA_PADDING): string => {
-  // console.log(sourceFilePath, targetFilePath)
-  return CryptoModule.rsaEncryptSync(text, key
-    .replace(KEY_PREFIX.publicKeyStart, '')
-    .replace(KEY_PREFIX.publicKeyEnd, ''),
-  padding)
-}
+export const rsaEncryptSync = Platform.OS === 'android'
+  ? (text: string, key: string, padding: RSA_PADDING): string => {
+      // console.log(sourceFilePath, targetFilePath)
+      return CryptoModule.rsaEncryptSync(text, key
+        .replace(KEY_PREFIX.publicKeyStart, '')
+        .replace(KEY_PREFIX.publicKeyEnd, ''),
+      padding)
+    }
+  : () => ''
 
-export const rsaDecryptSync = (text: string, key: string, padding: RSA_PADDING): string => {
-  // console.log(sourceFilePath, targetFilePath)
-  return CryptoModule.rsaDecryptSync(text, key
-    .replace(KEY_PREFIX.privateKeyStart, '')
-    .replace(KEY_PREFIX.privateKeyEnd, ''),
-  padding)
-}
+export const rsaDecryptSync = Platform.OS === 'android'
+  ? (text: string, key: string, padding: RSA_PADDING): string => {
+      // console.log(sourceFilePath, targetFilePath)
+      return CryptoModule.rsaDecryptSync(text, key
+        .replace(KEY_PREFIX.privateKeyStart, '')
+        .replace(KEY_PREFIX.privateKeyEnd, ''),
+      padding)
+    }
+  : () => ''
 
 
-export const aesEncrypt = async(text: string, key: string, vi: string, mode: AES_MODE): Promise<string> => {
-  // console.log(sourceFilePath, targetFilePath)
-  return CryptoModule.aesEncrypt(text, key, vi, mode)
-}
+export const aesEncrypt = Platform.OS === 'android'
+  ? async(text: string, key: string, vi: string, mode: AES_MODE): Promise<string> => {
+      // console.log(sourceFilePath, targetFilePath)
+      return CryptoModule.aesEncrypt(text, key, vi, mode)
+    }
+  : async() => ''
 
-export const aesDecrypt = async(text: string, key: string, vi: string, mode: AES_MODE): Promise<string> => {
-  // console.log(sourceFilePath, targetFilePath)
-  return CryptoModule.aesDecrypt(text, key, vi, mode)
-}
+export const aesDecrypt = Platform.OS === 'android'
+  ? async(text: string, key: string, vi: string, mode: AES_MODE): Promise<string> => {
+      // console.log(sourceFilePath, targetFilePath)
+      return CryptoModule.aesDecrypt(text, key, vi, mode)
+    }
+  : async() => ''
 
-export const aesEncryptSync = (text: string, key: string, vi: string, mode: AES_MODE): string => {
-  // console.log(sourceFilePath, targetFilePath)
-  return CryptoModule.aesEncryptSync(text, key, vi, mode)
-}
+export const aesEncryptSync = Platform.OS === 'android'
+  ? (text: string, key: string, vi: string, mode: AES_MODE): string => {
+      // console.log(sourceFilePath, targetFilePath)
+      return CryptoModule.aesEncryptSync(text, key, vi, mode)
+    }
+  : () => ''
 
-export const aesDecryptSync = (text: string, key: string, vi: string, mode: AES_MODE): string => {
-  // console.log(sourceFilePath, targetFilePath)
-  return CryptoModule.aesDecryptSync(text, key, vi, mode)
-}
+export const aesDecryptSync = Platform.OS === 'android'
+  ? (text: string, key: string, vi: string, mode: AES_MODE): string => {
+      // console.log(sourceFilePath, targetFilePath)
+      return CryptoModule.aesDecryptSync(text, key, vi, mode)
+    }
+  : () => ''
