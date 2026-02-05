@@ -15,9 +15,14 @@ if (Platform.OS === 'android') {
   getExternalStoragePaths = RNFileSystem.getExternalStoragePaths
 }
 
-export type {
-  FileType,
-} from 'react-native-file-system'
+// 导出类型定义
+export type FileType = {
+  path: string
+  name: string
+  size: number
+  type: 'file' | 'directory'
+  mtime: number
+}
 
 export type Encoding = 'utf8' | 'ascii' | 'base64'
 export type HashAlgorithm = 'md5' | 'sha1' | 'sha224' | 'sha256' | 'sha384' | 'sha512'
