@@ -8,6 +8,7 @@ declare namespace LX {
       sourceListId?: string
       // position?: number
       locationUpdateTime: number | null
+      img?: string // 歌单封面图片
     }
 
     interface MyDefaultListInfo {

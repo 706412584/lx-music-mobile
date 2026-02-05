@@ -31,7 +31,7 @@ export const handlePlay = async(id: string, source: Source, list?: LX.Music.Musi
   }
 }
 
-export const handleCollect = async(id: string, source: Source, name: string) => {
+export const handleCollect = async(id: string, source: Source, name: string, img?: string) => {
   const listId = getListId(id, source)
 
   const targetList = listState.userList.find(l => l.sourceListId == listId)
@@ -53,6 +53,7 @@ export const handleCollect = async(id: string, source: Source, name: string) => 
     list,
     source,
     sourceListId: id,
+    img,
   })
   toast(global.i18n.t('collect_success'))
 }

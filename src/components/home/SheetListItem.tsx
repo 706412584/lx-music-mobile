@@ -102,8 +102,8 @@ const SheetListItem = memo(({ item, onPress, onDelete, showDeleteButton = true }
         <View style={styles.coverContainer}>
           <Image
             source={
-              item.source && (item as any).coverUrl
-                ? { uri: (item as any).coverUrl }
+              item.img
+                ? { uri: item.img }
                 : require('@/resources/images/album-default.jpeg')
             }
             style={styles.cover}
