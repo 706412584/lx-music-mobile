@@ -65,7 +65,11 @@ export const getSystemLocales = Platform.OS === 'android'
   ? async(): Promise<string> => {
       return UtilsModule.getSystemLocales()
     }
-  : async() => 'en-US'
+  : async() => {
+      // iOS: 返回默认语言，格式为 en_us
+      // 可以根据系统语言返回对应的语言代码
+      return 'zh_cn' // 默认中文
+    }
 
 export const onScreenStateChange = Platform.OS === 'android'
   ? (handler: (state: 'ON' | 'OFF') => void): () => void => {
